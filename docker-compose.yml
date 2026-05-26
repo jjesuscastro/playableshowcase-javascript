@@ -10,4 +10,5 @@ services:
       - PORT=3000
       - UPLOADS_DIR=/uploads
       - DB_PATH=/data/apps.json
+      - SHOWCASE_PASSWORD=${SHOWCASE_PASSWORD}
     restart: unless-stopped

@@ -118,6 +118,26 @@
   flex-shrink: 0;
 }
 
+.sb-spacer {
+  flex: 1;
+}
+
+.sb-footer {
+  padding: 8px;
+  border-top: 1px solid #222;
+  flex-shrink: 0;
+}
+
+.sb-btn--logout {
+  color: #666;
+  width: 100%;
+}
+
+.sb-btn--logout:hover {
+  color: #f87171;
+  background: #1e1010;
+}
+
 .sb-app-icon-placeholder {
   width: 20px;
   height: 20px;
