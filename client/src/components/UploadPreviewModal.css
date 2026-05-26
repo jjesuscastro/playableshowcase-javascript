@@ -1,0 +1,236 @@
+.upm {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 20px;
+  padding: 0;
+  width: min(920px, 96vw);
+  max-height: 92vh;
+  overflow: hidden;
+  box-shadow: 0 32px 100px rgba(0,0,0,0.85);
+}
+
+.upm::backdrop {
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+}
+
+.upm__layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: 92vh;
+  max-height: 92vh;
+}
+
+/* ── Left: preview ─────────────────────────────────────────────────────── */
+
+.upm__preview {
+  background: #111;
+  border-right: 1px solid #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 20px;
+}
+
+.upm__frame {
+  width: 220px;
+  aspect-ratio: 9 / 19.5;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 2px solid #2e2e2e;
+  background: #000;
+  flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.upm__iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.upm__shot-hint {
+  font-size: 0.75rem;
+  color: #555;
+  margin: 0;
+}
+
+/* ── Right: form ───────────────────────────────────────────────────────── */
+
+.upm__form {
+  padding: 28px 28px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  color: #e8e8e8;
+}
+
+.upm__form h2 {
+  margin: 0 0 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.upm__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+}
+
+.upm__form input,
+.upm__form textarea,
+.upm__select {
+  background: #111;
+  border: 1px solid #2e2e2e;
+  border-radius: 8px;
+  color: #e8e8e8;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.upm__form input:focus,
+.upm__form textarea:focus,
+.upm__select:focus {
+  border-color: #7c6af7;
+}
+
+.upm__form textarea { resize: vertical; }
+
+.upm__select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.upm__app-row {
+  display: flex;
+  gap: 8px;
+}
+
+.upm__app-row .upm__select {
+  flex: 1;
+}
+
+.upm__new-app-btn {
+  background: #2a2440;
+  color: #9d8ef7;
+  border: 1px solid #3d3060;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.upm__new-app-btn:hover {
+  background: #352d55;
+}
+
+.upm__req {
+  color: #f77;
+  text-transform: none;
+}
+
+.upm__row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.upm__tag-row {
+  display: flex;
+  gap: 8px;
+}
+
+.upm__tag-row input { flex: 1; }
+
+.upm__tag-add {
+  background: #2a2440;
+  color: #9d8ef7;
+  border: 1px solid #3d3060;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.upm__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 20px;
+  margin-top: 4px;
+}
+
+.upm__tags .tag button {
+  background: none;
+  border: none;
+  color: #9d8ef7;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0 0 0 4px;
+  line-height: 1;
+}
+
+.upm__error {
+  font-size: 0.83rem;
+  color: #f77;
+  margin: -6px 0 10px;
+}
+
+.upm__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+@media (max-width: 680px) {
+  .upm {
+    width: 100vw;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    margin: 0;
+  }
+
+  .upm__layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .upm__preview {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .upm__frame {
+    width: 140px;
+    aspect-ratio: 9 / 19.5;
+  }
+
+  .upm__shot-hint {
+    display: none;
+  }
+}

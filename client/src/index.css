@@ -1,0 +1,65 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0e0e0e;
+  color: #e8e8e8;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: #9d8ef7;
+  text-decoration: none;
+}
+
+.tag {
+  background: #2a2440;
+  color: #9d8ef7;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: #7c6af7;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-primary:hover:not(:disabled) { background: #6a58e0; }
+.btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+.btn-secondary {
+  background: #2a2a2a;
+  color: #ccc;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  padding: 9px 22px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-secondary:hover { background: #333; }

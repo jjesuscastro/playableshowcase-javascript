@@ -1,0 +1,190 @@
+.viewer__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #666;
+}
+
+/* Stage fills the main content area (flex: 1 since parent is flex column) */
+.viewer__stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.viewer__frame-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+}
+
+/* ── Sidebar content ──────────────────────────────────────────────────────── */
+
+.viewer__sb-info {
+  padding: 4px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.viewer__sb-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e8e8e8;
+  word-break: break-word;
+}
+
+.viewer__sb-developer {
+  font-size: 0.78rem;
+  color: #666;
+}
+
+.viewer__app-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.viewer__app-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.viewer__app-icon--placeholder {
+  background: #2a2a2a;
+}
+
+.viewer__app-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e8e8e8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewer__store-links {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.viewer__store-link {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+
+.viewer__store-link:hover { opacity: 0.8; }
+
+.viewer__store-link--ios {
+  background: #1c1c2e;
+  color: #a78bfa;
+  border: 1px solid #3730a3;
+}
+
+.viewer__store-link--android {
+  background: #0f2310;
+  color: #6fcf6f;
+  border: 1px solid #1a4a1a;
+}
+
+.viewer__sb-mono {
+  font-size: 0.78rem;
+  color: #888;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.viewer__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.viewer__spacer {
+  flex: 1;
+}
+
+/* ── Controls section (bottom of sidebar) ─────────────────────────────────── */
+
+.viewer__controls {
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.viewer__frame-btns {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.viewer__frame-btn {
+  flex: 1;
+  background: #252525;
+  border: 1px solid #333;
+  color: #aaa;
+  border-radius: 6px;
+  padding: 5px 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.viewer__frame-btn.active,
+.viewer__frame-btn:hover {
+  background: #2a2440;
+  color: #9d8ef7;
+  border-color: #5a4ea8;
+}
+
+.viewer__ctrl-row {
+  display: flex;
+  gap: 5px;
+}
+
+.viewer__ctrl-btn {
+  flex: 1;
+  background: #252525;
+  border: 1px solid #333;
+  color: #aaa;
+  border-radius: 6px;
+  padding: 6px 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.viewer__ctrl-btn:hover,
+.viewer__ctrl-btn.active {
+  background: #2a2440;
+  color: #9d8ef7;
+  border-color: #5a4ea8;
+}
+
+.viewer__edit-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 680px) {
+  .viewer__stage {
+    min-height: 100dvh;
+  }
+}

@@ -1,0 +1,153 @@
+.ad-card {
+  background: #1e1e1e;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #2e2e2e;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.ad-card:hover {
+  border-color: #7c6af7;
+  transform: translateY(-2px);
+}
+
+.ad-card__thumb {
+  aspect-ratio: 9 / 19.5;
+  background: #111;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.ad-card__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ad-card__thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.ad-card__thumb-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #aaa;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ad-card__thumb-hint {
+  font-size: 0.7rem;
+  color: #555;
+}
+
+.ad-card__body {
+  padding: 10px 12px 6px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ad-card__top-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.ad-card__app-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ad-card__top-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ad-card__title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #e8e8e8;
+}
+
+.ad-card__app {
+  font-size: 0.75rem;
+  color: #9d8ef7;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ad-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ad-card__meta {
+  font-size: 0.7rem;
+  color: #555;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ad-card__actions {
+  display: flex;
+  border-top: 1px solid #2e2e2e;
+}
+
+.ad-card__actions button {
+  flex: 1;
+  background: none;
+  border: none;
+  border-right: 1px solid #2e2e2e;
+  color: #aaa;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ad-card__actions button:last-child {
+  border-right: none;
+}
+
+.ad-card__actions button:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.ad-card__actions .ad-card__delete:hover {
+  background: #3a1a1a;
+  color: #f77;
+}

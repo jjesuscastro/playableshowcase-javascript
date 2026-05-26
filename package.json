@@ -1,0 +1,13 @@
+{
+  "name": "playable-showcase",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --names \"server,client\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "stop": "kill-port 3000 5173"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "kill-port": "^2.0.1"
+  }
+}

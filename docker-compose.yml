@@ -1,0 +1,13 @@
+services:
+  showcase:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./uploads:/uploads
+      - ./data:/data
+    environment:
+      - PORT=3000
+      - UPLOADS_DIR=/uploads
+      - DB_PATH=/data/ads.json
+    restart: unless-stopped
