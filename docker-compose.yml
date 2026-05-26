@@ -10,6 +10,4 @@ services:
       - PORT=3000
       - UPLOADS_DIR=/uploads
       - DB_PATH=/data/apps.json
-    env_file:
-      - .env
     restart: unless-stopped
