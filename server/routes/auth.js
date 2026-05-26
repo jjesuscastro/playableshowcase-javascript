@@ -9,7 +9,7 @@ function makeToken(password) {
 
 router.post('/login', (req, res) => {
   const { password } = req.body;
-  const expected = process.env.SHOWCASE_PASSWORD;
+  const expected = (process.env.SHOWCASE_PASSWORD || '').trim();
 
   if (!expected) {
     return res.status(500).json({ error: 'Server not configured' });

@@ -13,7 +13,7 @@ app.use(express.json({ limit: '10mb' }));
 
 // Auth middleware for protected API routes
 function requireAuth(req, res, next) {
-  const password = process.env.SHOWCASE_PASSWORD;
+  const password = (process.env.SHOWCASE_PASSWORD || '').trim();
   if (!password) return next(); // not configured, skip
 
   const auth = req.headers['authorization'] || '';
