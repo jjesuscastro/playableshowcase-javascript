@@ -53,7 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY server/package*.json ./
 RUN npm ci --omit=dev
 COPY server/ ./server/
-COPY --from=client-build /app/client/dist ./public
+COPY --from=client-build /app/public ./public
 RUN mkdir -p /data /uploads
 EXPOSE 3000
 ENV NODE_ENV=production
