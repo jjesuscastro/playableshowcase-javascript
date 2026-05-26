@@ -4,10 +4,12 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./uploads:/uploads
-      - ./data:/data
+      - /media/playableShowcase/uploads:/uploads
+      - /media/playableShowcase/data:/data
     environment:
       - PORT=3000
       - UPLOADS_DIR=/uploads
-      - DB_PATH=/data/ads.json
+      - DB_PATH=/data/apps.json
+    env_file:
+      - .env
     restart: unless-stopped
