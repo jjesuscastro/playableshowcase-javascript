@@ -4,7 +4,7 @@ const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
 const { listAds, getAd, updateAd, updateAdFile, updateAdThumbnail, deleteAd } = require('../db');
-const { captureScreenshot } = require('../utils/screenshot');
+const { captureScreenshot, captureScreenshotCandidates } = require('../utils/screenshot');
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR || path.join(__dirname, '..', '..', 'uploads');
 
@@ -88,6 +88,22 @@ router.post('/:id/screenshot', async (req, res) => {
   } catch (err) {
     console.error('Screenshot failed:', err.message);
     res.status(500).json({ error: 'Screenshot failed' });
+  }
+});
+
+router.post('/:id/screenshot-candidates', async (req, res) => {
+  const ad = getAd(req.params.id);
+  if (!ad) return res.status(404).json({ error: 'Not found' });
+
+  try {
+    const port = process.env.PORT || 3000;
+    const url = `http://127.0.0.1:${port}/uploads/${ad.filename}`;
+    const buffers = await captureScreenshotCandidates(url);
+    const candidates = buffers.map(buf => 'data:image/png;base64,' + buf.toString('base64'));
+    res.json({ candidates });
+  } catch (err) {
+    console.error('Screenshot candidates failed:', err.message);
+    res.status(500).json({ error: 'Screenshot capture failed' });
   }
 });
 

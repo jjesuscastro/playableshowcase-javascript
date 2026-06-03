@@ -31,6 +31,7 @@ app.use('/api/auth', require('./routes/auth').router);
 
 // Protected API routes
 app.use('/api/apps', requireAuth, require('./routes/apps'));
+app.use('/api/developers', requireAuth, require('./routes/developers'));
 app.use('/api/ads', requireAuth, require('./routes/upload'));
 app.use('/api/ads', requireAuth, require('./routes/ads'));
 

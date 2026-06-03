@@ -14,7 +14,7 @@ export default function AdCard({ ad, app, onEdit, onDelete }) {
       <div className="ad-card__thumb" onClick={() => navigate(`/viewer/${ad.id}`)}>
         {showThumb ? (
           <img
-            src={`/uploads/${ad.thumbnail}`}
+            src={`/uploads/${ad.thumbnail}?t=${ad.updated_at}`}
             alt={ad.title}
             className="ad-card__thumb-img"
             onError={() => setThumbError(true)}

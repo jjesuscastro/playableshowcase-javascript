@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAd, listApps, updateAd, updateAdFile } from '../api';
+import { getAd, listApps, listDevelopers, updateAd, updateAdFile } from '../api';
 import AppLayout from '../components/AppLayout';
 import DeviceFrame, { FRAMES, getFrameSize } from '../components/DeviceFrame';
 import MetadataModal from '../components/MetadataModal';
+import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
 import './Viewer.css';
 
 const VIEWER_LAYOUT = {
@@ -20,9 +21,12 @@ export default function Viewer() {
   const navigate = useNavigate();
   const [ad, setAd] = useState(null);
   const [apps, setApps] = useState([]);
+  const [developers, setDevelopers] = useState([]);
   const [frame, setFrame] = useState('phone');
   const [rotated, setRotated] = useState(false);
+  const [muted, setMuted] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [pickingScreenshot, setPickingScreenshot] = useState(false);
   const stageRef = useRef();
   const [stageDims, setStageDims] = useState(() => ({
     width: window.innerWidth - VIEWER_LAYOUT.sidebarWidth,
@@ -32,6 +36,7 @@ export default function Viewer() {
   useEffect(() => {
     getAd(id).then(setAd).catch(() => navigate('/'));
     listApps().then(setApps).catch(() => {});
+    listDevelopers().then(setDevelopers).catch(() => {});
   }, [id, navigate]);
 
   useEffect(() => {
@@ -78,6 +83,9 @@ export default function Viewer() {
     const updated = await updateAd(id, data);
     setAd(updated);
     setEditing(false);
+    if (newFile) {
+      setPickingScreenshot(true);
+    }
   }
 
   if (!ad) return <div className="viewer__loading">Loading...</div>;
@@ -174,8 +182,25 @@ export default function Viewer() {
           >
             Rotate
           </button>
+          <button
+            className={`viewer__ctrl-btn${muted ? ' active' : ''}`}
+            onClick={() => setMuted(m => !m)}
+            title={muted ? 'Unmute' : 'Mute'}
+          >
+            {muted ? 'Unmute' : 'Mute'}
+          </button>
         </div>
-        <button className="btn-primary viewer__edit-btn" onClick={() => setEditing(true)}>Edit</button>
+        <div className="viewer__ctrl-row">
+          <button className="btn-primary viewer__edit-btn" onClick={() => setEditing(true)}>Edit</button>
+          <a
+            href={`/uploads/${ad.filename}`}
+            download={`${ad.title}.html`}
+            className="viewer__ctrl-btn viewer__download-btn"
+            title="Download HTML"
+          >
+            ↓ HTML
+          </a>
+        </div>
       </div>
     </>
   );
@@ -194,12 +219,21 @@ export default function Viewer() {
             frame={frame}
             filename={ad.filename}
             rotated={rotated}
+            muted={muted}
           />
         </div>
       </div>
 
       {editing && (
-        <MetadataModal ad={ad} apps={apps} onSave={handleSave} onClose={() => setEditing(false)} />
+        <MetadataModal ad={ad} apps={apps} developers={developers} onSave={handleSave} onClose={() => setEditing(false)} />
+      )}
+
+      {pickingScreenshot && (
+        <ScreenshotPickerModal
+          ad={ad}
+          onDone={shot => { setAd(shot); setPickingScreenshot(false); }}
+          onSkip={() => setPickingScreenshot(false)}
+        />
       )}
     </AppLayout>
   );

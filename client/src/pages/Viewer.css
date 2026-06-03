@@ -178,9 +178,20 @@
 }
 
 .viewer__edit-btn {
-  width: 100%;
+  flex: 1;
   padding: 8px;
   font-size: 0.85rem;
+}
+
+.viewer__download-btn {
+  flex: 1;
+  padding: 8px 4px;
+  font-size: 0.78rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 680px) {

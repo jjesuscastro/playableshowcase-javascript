@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import AdCard from '../components/AdCard';
 import AppLayout from '../components/AppLayout';
 import MetadataModal from '../components/MetadataModal';
+import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
 import UploadPreviewModal from '../components/UploadPreviewModal';
-import { deleteAd, listAds, listApps, updateAd, updateAdFile, uploadAd } from '../api';
+import { deleteAd, listAds, listApps, listDevelopers, saveThumbnail, updateAd, updateAdFile, uploadAd } from '../api';
 import './Catalog.css';
 
 export default function Catalog() {
@@ -14,15 +15,18 @@ export default function Catalog() {
 
   const [ads, setAds] = useState([]);
   const [apps, setApps] = useState([]);
+  const [developers, setDevelopers] = useState([]);
   const [activeAppId, setActiveAppId] = useState(null);
   const [search, setSearch] = useState('');
   const [editingAd, setEditingAd] = useState(null);
   const [pendingAd, setPendingAd] = useState(null);
+  const [screenshotPickAd, setScreenshotPickAd] = useState(null);
 
   useEffect(() => {
     listApps()
       .then(list => setApps([...list].sort((a, b) => a.name.localeCompare(b.name))))
       .catch(() => {});
+    listDevelopers().then(setDevelopers).catch(() => {});
   }, []);
   useEffect(() => { listAds(activeAppId).then(setAds).catch(() => {}); }, [activeAppId]);
 
@@ -53,6 +57,10 @@ export default function Catalog() {
   async function handleUploadSave(data) {
     const updated = await updateAd(pendingAd.id, data);
     setAds(prev => [updated, ...prev.filter(a => a.id !== updated.id)]);
+    // Refresh apps in case a new one was created inside the upload modal
+    listApps()
+      .then(list => setApps([...list].sort((a, b) => a.name.localeCompare(b.name))))
+      .catch(() => {});
     const next = pendingAd._next;
     setPendingAd(null);
     if (next) next();
@@ -67,10 +75,14 @@ export default function Catalog() {
   // ── edit existing ────────────────────────────────────────────────────────
 
   async function handleSave({ newFile, ...data }) {
-    if (newFile) await updateAdFile(editingAd.id, newFile);
-    const updated = await updateAd(editingAd.id, data);
+    const adId = editingAd.id;
+    if (newFile) await updateAdFile(adId, newFile);
+    const updated = await updateAd(adId, data);
     setAds(prev => prev.map(a => a.id === updated.id ? updated : a));
     setEditingAd(null);
+    if (newFile) {
+      setScreenshotPickAd(updated);
+    }
   }
 
   async function handleDelete(ad) {
@@ -104,6 +116,7 @@ export default function Catalog() {
         <input ref={fileInputRef} type="file" accept=".html" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
         <button className="sb-btn sb-btn--primary" onClick={openFilePicker}>+ Upload</button>
         <button className="sb-btn" onClick={() => navigate('/apps')}>Applications</button>
+        <button className="sb-btn" onClick={() => navigate('/settings')}>Settings</button>
       </div>
 
       <div className="sb-divider" />
@@ -172,6 +185,7 @@ export default function Catalog() {
         <UploadPreviewModal
           ad={pendingAd}
           apps={apps}
+          developers={developers}
           onSave={handleUploadSave}
           onClose={handleUploadCancel}
         />
@@ -181,8 +195,20 @@ export default function Catalog() {
         <MetadataModal
           ad={editingAd}
           apps={apps}
+          developers={developers}
           onSave={handleSave}
           onClose={() => setEditingAd(null)}
+        />
+      )}
+
+      {screenshotPickAd && (
+        <ScreenshotPickerModal
+          ad={screenshotPickAd}
+          onDone={shot => {
+            setAds(prev => prev.map(a => a.id === shot.id ? shot : a));
+            setScreenshotPickAd(null);
+          }}
+          onSkip={() => setScreenshotPickAd(null)}
         />
       )}
     </AppLayout>

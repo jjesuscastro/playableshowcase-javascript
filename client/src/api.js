@@ -92,6 +92,12 @@ export async function requestScreenshot(id) {
   return res.json();
 }
 
+export async function requestScreenshotCandidates(id) {
+  const res = await apiFetch(`${ADS_BASE}/${id}/screenshot-candidates`, { method: 'POST' });
+  if (!res.ok) throw new Error('Screenshot candidates failed');
+  return res.json();
+}
+
 export async function saveThumbnail(id, dataUrl) {
   const res = await apiFetch(`${ADS_BASE}/${id}/thumbnail`, {
     method: 'POST',
@@ -100,6 +106,29 @@ export async function saveThumbnail(id, dataUrl) {
   });
   if (!res.ok) throw new Error('Thumbnail save failed');
   return res.json();
+}
+
+// ── developers ───────────────────────────────────────────────────────────────
+
+export async function listDevelopers() {
+  const res = await apiFetch('/api/developers');
+  if (!res.ok) throw new Error('Failed to fetch developers');
+  return res.json();
+}
+
+export async function addDeveloper(name) {
+  const res = await apiFetch('/api/developers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) throw new Error('Failed to add developer');
+  return res.json();
+}
+
+export async function removeDeveloper(id) {
+  const res = await apiFetch(`/api/developers/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to remove developer');
 }
 
 // ── apps ─────────────────────────────────────────────────────────────────────

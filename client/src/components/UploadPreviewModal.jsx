@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { createApp, requestScreenshot } from '../api';
+import { createApp, requestScreenshotCandidates, saveThumbnail } from '../api';
+import { buildMutedHtml } from '../muteScript';
 import AppModal from './AppModal';
 import './UploadPreviewModal.css';
 
-export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, onClose }) {
+export default function UploadPreviewModal({ ad, apps: appsProp = [], developers = [], onSave, onClose }) {
   const dialogRef = useRef();
   const initialScreenshotStarted = useRef(false);
 
@@ -20,13 +21,26 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, on
   const [creatingApp, setCreatingApp] = useState(false);
   const [screenshotTaken, setScreenshotTaken] = useState(false);
   const [screenshotStatus, setScreenshotStatus] = useState(null);
+  const [candidates, setCandidates] = useState([]);
+  const [selectedCandidateIdx, setSelectedCandidateIdx] = useState(null);
+  const [savingCandidate, setSavingCandidate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  const [srcdoc, setSrcdoc] = useState(null);
 
   useEffect(() => {
     dialogRef.current?.showModal();
     return () => dialogRef.current?.close();
   }, []);
+
+  // Fetch and inject mute script so audio is silenced in the preview
+  useEffect(() => {
+    fetch(`/uploads/${ad.filename}`)
+      .then(r => r.text())
+      .then(html => setSrcdoc(buildMutedHtml(html)))
+      .catch(() => setSrcdoc(undefined));
+  }, [ad.filename]);
 
   useEffect(() => {
     if (initialScreenshotStarted.current) return;
@@ -43,14 +57,33 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, on
   function removeTag(t) { setTags(tags.filter(x => x !== t)); }
 
   async function handleScreenshot() {
+    setCandidates([]);
+    setSelectedCandidateIdx(null);
+    setScreenshotTaken(false);
     setScreenshotStatus('saving');
     try {
-      await requestScreenshot(ad.id);
+      const { candidates: c } = await requestScreenshotCandidates(ad.id);
+      setCandidates(c);
+      setScreenshotStatus('selecting');
+    } catch {
+      setScreenshotStatus('error');
+      setTimeout(() => setScreenshotStatus(null), 2500);
+    }
+  }
+
+  async function handleSelectCandidate(dataUrl, idx) {
+    if (savingCandidate) return;
+    setSavingCandidate(true);
+    try {
+      await saveThumbnail(ad.id, dataUrl);
+      setSelectedCandidateIdx(idx);
       setScreenshotTaken(true);
       setScreenshotStatus('done');
     } catch {
       setScreenshotStatus('error');
       setTimeout(() => setScreenshotStatus(null), 2500);
+    } finally {
+      setSavingCandidate(false);
     }
   }
 
@@ -72,6 +105,10 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, on
     }
   }
 
+  const iframeProps = srcdoc !== undefined && srcdoc !== null
+    ? { srcdoc }
+    : { src: `/uploads/${ad.filename}` };
+
   return (
     <dialog ref={dialogRef} className="upm" onClose={onClose}>
       <div className="upm__layout">
@@ -80,17 +117,46 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, on
         <div className="upm__preview">
           <div className="upm__frame">
             <iframe
-
-              src={`/uploads/${ad.filename}`}
+              {...iframeProps}
               title="Playable preview"
               sandbox="allow-scripts allow-same-origin allow-forms"
               className="upm__iframe"
             />
           </div>
-          {!screenshotTaken && (
-            <p className="upm__shot-hint">
-              {screenshotStatus === 'saving' ? 'Capturing initial thumbnail…' : 'Required before saving'}
-            </p>
+
+          {screenshotStatus === 'saving' && (
+            <p className="upm__shot-hint">Capturing frames…</p>
+          )}
+          {screenshotStatus === 'error' && (
+            <p className="upm__shot-hint upm__shot-hint--error">Capture failed — try again</p>
+          )}
+
+          {candidates.length > 0 && (
+            <div className="upm__candidates-wrap">
+              <span className="upm__candidates-label">Choose thumbnail</span>
+              <div className="upm__candidates">
+                {candidates.map((dataUrl, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`upm__candidate${selectedCandidateIdx === i ? ' upm__candidate--selected' : ''}`}
+                    onClick={() => handleSelectCandidate(dataUrl, i)}
+                    disabled={savingCandidate}
+                    title={`Frame ${i + 1}`}
+                  >
+                    <img src={dataUrl} alt={`Frame ${i + 1}`} />
+                    {selectedCandidateIdx === i && <span className="upm__candidate-check">✓</span>}
+                  </button>
+                ))}
+              </div>
+              <button type="button" className="upm__retake" onClick={handleScreenshot}>
+                Retake
+              </button>
+            </div>
+          )}
+
+          {!screenshotTaken && screenshotStatus === null && candidates.length === 0 && (
+            <p className="upm__shot-hint">Required before saving</p>
           )}
         </div>
 
@@ -136,7 +202,10 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, on
 
           <label>
             Developer
-            <input value={developer} onChange={e => setDeveloper(e.target.value)} placeholder="Developer or team name" />
+            <select value={developer} onChange={e => setDeveloper(e.target.value)} className="upm__select">
+              <option value="">— select developer —</option>
+              {developers.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+            </select>
           </label>
 
           <div className="upm__row2">
@@ -164,7 +233,7 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], onSave, on
               onClick={handleSave}
               disabled={saving || !screenshotTaken}
               className="btn-primary"
-              title={!screenshotTaken ? 'Take a screenshot first' : ''}
+              title={!screenshotTaken ? 'Select a thumbnail first' : ''}
             >
               {saving ? 'Saving…' : 'Save'}
             </button>

@@ -3,6 +3,7 @@ import { isAuthenticated } from './api';
 import Login from './pages/Login';
 import Apps from './pages/Apps';
 import Catalog from './pages/Catalog';
+import Settings from './pages/Settings';
 import Viewer from './pages/Viewer';
 
 function ProtectedRoute({ children }) {
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute><Catalog /></ProtectedRoute>} />
         <Route path="/apps" element={<ProtectedRoute><Apps /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/viewer/:id" element={<ProtectedRoute><Viewer /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

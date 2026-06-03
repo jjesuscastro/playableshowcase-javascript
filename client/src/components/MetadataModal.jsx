@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './MetadataModal.css';
 
-export default function MetadataModal({ ad, apps = [], onSave, onClose }) {
+export default function MetadataModal({ ad, apps = [], developers = [], onSave, onClose }) {
   const dialogRef = useRef();
   const fileInputRef = useRef();
   const [title, setTitle] = useState(ad.title);
@@ -92,7 +92,10 @@ export default function MetadataModal({ ad, apps = [], onSave, onClose }) {
 
       <label>
         Developer
-        <input value={developer} onChange={e => setDeveloper(e.target.value)} placeholder="Developer or team name" />
+        <select value={developer} onChange={e => setDeveloper(e.target.value)} className="meta-modal__select">
+          <option value="">— select developer —</option>
+          {developers.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+        </select>
       </label>
 
       <div className="meta-modal__row2">
@@ -112,7 +115,16 @@ export default function MetadataModal({ ad, apps = [], onSave, onClose }) {
       </label>
 
       <div className="meta-modal__replace">
-        <span className="meta-modal__replace-label">Replace HTML</span>
+        <div className="meta-modal__replace-header">
+          <span className="meta-modal__replace-label">Replace HTML</span>
+          <a
+            href={`/uploads/${ad.filename}`}
+            download={`${ad.title}.html`}
+            className="meta-modal__download"
+          >
+            ↓ Download current
+          </a>
+        </div>
         <div className="meta-modal__replace-row">
           <input
             ref={fileInputRef}

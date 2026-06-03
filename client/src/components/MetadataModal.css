@@ -140,14 +140,31 @@
   margin-bottom: 16px;
 }
 
+.meta-modal__replace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .meta-modal__replace-label {
-  display: block;
   font-size: 0.82rem;
   color: #999;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 8px;
+}
+
+.meta-modal__download {
+  font-size: 0.78rem;
+  color: #7c6af7;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.meta-modal__download:hover {
+  color: #a090ff;
 }
 
 .meta-modal__replace-row {

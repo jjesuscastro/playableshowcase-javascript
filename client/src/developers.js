@@ -1,0 +1,16 @@
+export const DEVELOPERS = [
+  'Belgica, Sean',
+  'Caamino, Adrian',
+  'Castro, Jesus',
+  'Coronel, Will',
+  'Esteron, Jericson',
+  'Fajardo, Jules',
+  'Florentino, Marcus',
+  'Lenomta, MJ',
+  'Malana, Marco',
+  'Mocorro, Jet',
+  'Mondejar, Kevin',
+  'Obzunar, Nic',
+  'Tecson, Nat',
+  'Tesalona, Allen',
+];

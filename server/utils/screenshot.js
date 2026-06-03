@@ -2,7 +2,8 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 const FINAL_SETTLE_MS = 800;
-const CANDIDATE_DELAYS_MS = [0, 500, 500];
+const BURST_DELAYS_MS = [0, 500, 500];
+const CANDIDATE_GAPS_MS = [2000, 2000]; // delays between candidates: T+0, T+2s, T+4s
 const EDGE_PATHS = [
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
   'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -17,11 +18,10 @@ function getBrowserExecutablePath() {
   return EDGE_PATHS.find(p => fs.existsSync(p));
 }
 
-async function captureScreenshot(url, width = 390, height = 844) {
-  const executablePath = getBrowserExecutablePath();
-  const browser = await puppeteer.launch({
+function getLaunchArgs() {
+  return {
     headless: true,
-    executablePath,
+    executablePath: getBrowserExecutablePath(),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -29,11 +29,17 @@ async function captureScreenshot(url, width = 390, height = 844) {
       '--enable-webgl',
       '--ignore-gpu-blocklist',
     ],
-  });
+  };
+}
 
+async function withPage(url, width, height, fn) {
+  const browser = await puppeteer.launch(getLaunchArgs());
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width, height, deviceScaleFactor: 1 });
+    // isMobile ensures the CSS viewport meta tag is respected the same way a
+    // mobile browser would, so playables that size themselves via vw/vh or
+    // window.innerWidth match what the device frame shows.
+    await page.setViewport({ width, height, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
     page.on('console', msg => console.log(`[screenshot:${msg.type()}] ${msg.text()}`));
 
     // Unity clears WebGL buffers by default, so force readable buffers before
@@ -50,6 +56,14 @@ async function captureScreenshot(url, width = 390, height = 844) {
 
     console.log(`[screenshot] loading ${url}`);
     await page.goto(url, { waitUntil: 'load', timeout: 60000 });
+
+    // Hide scrollbars and fire resize so JS-based layout callbacks re-run
+    // with the correct viewport dimensions.
+    await page.evaluate(() => {
+      document.documentElement.style.overflow = 'hidden';
+      if (document.body) document.body.style.overflow = 'hidden';
+      window.dispatchEvent(new Event('resize'));
+    });
 
     try {
       await page.waitForFunction(() => {
@@ -69,21 +83,37 @@ async function captureScreenshot(url, width = 390, height = 844) {
       console.log(`[screenshot] canvas readiness timed out: ${err.message}`);
     }
 
-    // HTML overlays and Unity's first fully composited frame can lag behind
-    // canvas readiness, so capture a short burst and keep the richest PNG.
     await wait(FINAL_SETTLE_MS);
-    let bestBuffer = null;
-    for (const delay of CANDIDATE_DELAYS_MS) {
-      if (delay) await wait(delay);
-      const buffer = await page.screenshot({ type: 'png' });
-      if (!bestBuffer || buffer.length > bestBuffer.length) bestBuffer = buffer;
-    }
-
-    console.log(`[screenshot] selected ${bestBuffer.length} bytes`);
-    return bestBuffer;
+    return await fn(page);
   } finally {
     await browser.close();
   }
 }
 
-module.exports = { captureScreenshot };
+async function captureScreenshot(url, width = 390, height = 844) {
+  return withPage(url, width, height, async (page) => {
+    let bestBuffer = null;
+    for (const delay of BURST_DELAYS_MS) {
+      if (delay) await wait(delay);
+      const buffer = await page.screenshot({ type: 'png' });
+      if (!bestBuffer || buffer.length > bestBuffer.length) bestBuffer = buffer;
+    }
+    console.log(`[screenshot] selected ${bestBuffer.length} bytes`);
+    return bestBuffer;
+  });
+}
+
+async function captureScreenshotCandidates(url, width = 390, height = 844) {
+  return withPage(url, width, height, async (page) => {
+    const buffers = [];
+    buffers.push(await page.screenshot({ type: 'png' }));
+    for (const gap of CANDIDATE_GAPS_MS) {
+      await wait(gap);
+      buffers.push(await page.screenshot({ type: 'png' }));
+    }
+    console.log(`[screenshot] captured ${buffers.length} candidates`);
+    return buffers;
+  });
+}
+
+module.exports = { captureScreenshot, captureScreenshotCandidates };

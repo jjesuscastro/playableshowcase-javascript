@@ -128,4 +128,63 @@ function deleteApp(id) {
   return app;
 }
 
-module.exports = { listAds, getAd, insertAd, updateAd, updateAdFile, updateAdThumbnail, deleteAd, listApps, getApp, insertApp, updateApp, deleteApp };
+// ── developers ───────────────────────────────────────────────────────────────
+
+const DEVS_DB_PATH = process.env.DEVS_DB_PATH || path.join(__dirname, '..', 'data', 'developers.json');
+
+const DEFAULT_DEVELOPERS = [
+  'Belgica, Sean',
+  'Caamino, Adrian',
+  'Castro, Jesus',
+  'Coronel, Will',
+  'Esteron, Jericson',
+  'Fajardo, Jules',
+  'Florentino, Marcus',
+  'Lenomta, MJ',
+  'Malana, Marco',
+  'Mocorro, Jet',
+  'Mondejar, Kevin',
+  'Obzunar, Nic',
+  'Tecson, Nat',
+  'Tesalona, Allen',
+];
+
+function readDevsDb() {
+  try { return JSON.parse(fs.readFileSync(DEVS_DB_PATH, 'utf8')); }
+  catch { return null; }
+}
+
+function writeDevsDb(devs) {
+  fs.mkdirSync(path.dirname(DEVS_DB_PATH), { recursive: true });
+  fs.writeFileSync(DEVS_DB_PATH, JSON.stringify(devs, null, 2), 'utf8');
+}
+
+function listDevelopers() {
+  const stored = readDevsDb();
+  if (stored) return stored;
+  // Seed from defaults on first access
+  const seeded = DEFAULT_DEVELOPERS.map(name => ({ id: crypto.randomUUID(), name }));
+  writeDevsDb(seeded);
+  return seeded;
+}
+
+function addDeveloper(name) {
+  const devs = listDevelopers();
+  if (devs.some(d => d.name.toLowerCase() === name.toLowerCase())) return null;
+  const dev = { id: crypto.randomUUID(), name };
+  devs.push(dev);
+  devs.sort((a, b) => a.name.localeCompare(b.name));
+  writeDevsDb(devs);
+  return dev;
+}
+
+function removeDeveloper(id) {
+  const devs = listDevelopers();
+  const idx = devs.findIndex(d => d.id === id);
+  if (idx === -1) return null;
+  const [dev] = devs.splice(idx, 1);
+  writeDevsDb(devs);
+  return dev;
+}
+
+module.exports = { listAds, getAd, insertAd, updateAd, updateAdFile, updateAdThumbnail, deleteAd, listApps, getApp, insertApp, updateApp, deleteApp, listDevelopers, addDeveloper, removeDeveloper };
