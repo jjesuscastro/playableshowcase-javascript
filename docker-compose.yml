@@ -9,6 +9,8 @@ services:
     environment:
       - PORT=3000
       - UPLOADS_DIR=/uploads
-      - DB_PATH=/data/apps.json
+      - DB_PATH=/data/ads.json
+      - APPS_DB_PATH=/data/apps.json
+      - DEVS_DB_PATH=/data/developers.json
       - SHOWCASE_PASSWORD=${SHOWCASE_PASSWORD}
     restart: unless-stopped
