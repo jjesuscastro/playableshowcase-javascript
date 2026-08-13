@@ -1,5 +1,5 @@
 .upload-page {
-  width: min(760px, 100%);
+  width: 100%;
   padding: 32px 24px;
 }
 
@@ -7,120 +7,198 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .upload-page__header h1 {
   flex: 1;
-  font-size: 1.8rem;
-  font-weight: 800;
   margin: 0;
   background: linear-gradient(135deg, #7c6af7 0%, #b89bf7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-size: 1.8rem;
+  font-weight: 800;
 }
 
-.upload-page__back {
+.upload-page__back,
+.upload-page__link {
   background: none;
   border: none;
   color: #9d8ef7;
   cursor: pointer;
   font-size: 0.9rem;
   padding: 0;
-  white-space: nowrap;
 }
 
-.upload-page__back:hover {
-  color: #b8aaf9;
+.upload-page__link {
+  font-size: inherit;
+  text-decoration: underline;
 }
 
 .upload-page__zone {
+  max-width: 760px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.upload-page__batch {
+.upload-page__warning {
+  text-align: center;
+  color: #888;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.upload-page__table-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upload-page__toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px;
-  border: 1px solid #333;
+}
+
+.upload-page__toolbar h2 {
+  color: #eee;
+  font-size: 1.05rem;
+  margin: 0 0 4px;
+}
+
+.upload-page__toolbar p {
+  color: #888;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.upload-page__hidden-input {
+  display: none;
+}
+
+.upload-page__bulk {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.2fr) auto repeat(5, minmax(120px, 1fr)) auto;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #2f2f2f;
   border-radius: 8px;
   background: #181818;
 }
 
-.upload-page__batch h2 {
-  margin: 0 0 4px;
-  color: #eee;
-  font-size: 1rem;
+.upload-page__bulk input,
+.upload-page__bulk select,
+.upload-page__table input,
+.upload-page__table select,
+.upload-page__table textarea {
+  width: 100%;
+  border: 1px solid #333;
+  border-radius: 7px;
+  background: #101010;
+  color: #e8e8e8;
+  font: inherit;
+  font-size: 0.84rem;
+  outline: none;
+  padding: 7px 9px;
 }
 
-.upload-page__batch p {
-  margin: 0;
-  color: #999;
-  font-size: 0.88rem;
+.upload-page__bulk input:focus,
+.upload-page__bulk select:focus,
+.upload-page__table input:focus,
+.upload-page__table select:focus,
+.upload-page__table textarea:focus {
+  border-color: #7c6af7;
 }
 
-.upload-page__batch-input {
-  display: none;
+.upload-page__new-app,
+.upload-page__apply {
+  white-space: nowrap;
+  padding: 7px 12px;
+  font-size: 0.84rem;
 }
 
-.upload-page__batch-btn {
-  flex: 0 0 auto;
-}
-
-.upload-page__instructions {
-  padding: 18px;
-  border: 1px solid #2f2f2f;
+.upload-page__table-wrap {
+  overflow-x: auto;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   background: #151515;
 }
 
-.upload-page__instructions-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+.upload-page__table {
+  width: 100%;
+  min-width: 1280px;
+  border-collapse: collapse;
 }
 
-.upload-page__instructions h2 {
-  margin: 0;
-  color: #eee;
-  font-size: 1rem;
+.upload-page__table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px;
+  background: #202020;
+  color: #999;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
 }
 
-.upload-page__template-btn {
-  flex: 0 0 auto;
-  padding: 7px 12px;
+.upload-page__table td {
+  vertical-align: top;
+  border-top: 1px solid #252525;
+  padding: 10px;
+}
+
+.upload-page__table th:nth-child(1),
+.upload-page__table td:nth-child(1) {
+  width: 180px;
+}
+
+.upload-page__table th:nth-child(8),
+.upload-page__table td:nth-child(8) {
+  width: 180px;
+}
+
+.upload-page__filename {
+  display: block;
+  color: #ddd;
   font-size: 0.82rem;
+  font-weight: 700;
+  word-break: break-word;
 }
 
-.upload-page__instructions ul {
-  margin: 0 0 14px;
-  padding-left: 20px;
-  color: #aaa;
-  font-size: 0.88rem;
-  line-height: 1.55;
+.upload-page__row-error {
+  display: block;
+  color: #f77;
+  font-size: 0.75rem;
+  margin-top: 6px;
 }
 
-.upload-page__instructions code {
-  color: #c9c0ff;
-  font-size: 0.86em;
+.upload-page__row--error td {
+  background: rgba(120, 40, 50, 0.16);
 }
 
-.upload-page__instructions pre {
-  margin: 0;
-  padding: 12px;
-  overflow-x: auto;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
-  background: #101010;
-  color: #d8d8d8;
-  font-size: 0.8rem;
-  line-height: 1.45;
+.upload-page__row-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-page__row-actions button {
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #242424;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 6px 8px;
+}
+
+.upload-page__row-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .upload-page__errors {
@@ -143,42 +221,14 @@
   padding-left: 20px;
 }
 
-.upload-page__errors li + li {
-  margin-top: 4px;
-}
-
-.upload-page__warning {
-  text-align: center;
-  color: #888;
-  font-size: 0.88rem;
-  margin: 0;
-}
-
-.upload-page__link {
-  background: none;
-  border: none;
-  color: #9d8ef7;
-  cursor: pointer;
-  font-size: inherit;
-  padding: 0;
-  text-decoration: underline;
-}
-
-.upload-page__status {
-  text-align: center;
-  color: #9d8ef7;
-  font-size: 0.9rem;
-  margin-top: 48px;
-  animation: pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+.upload-page__footer-actions,
+.upload-page__done-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .upload-page__done {
-  text-align: center;
   margin-top: 64px;
   display: flex;
   flex-direction: column;
@@ -187,24 +237,34 @@
 }
 
 .upload-page__done-msg {
-  font-size: 1.1rem;
   color: #6fcf6f;
+  font-size: 1.1rem;
   margin: 0;
 }
 
-.upload-page__done-actions {
-  display: flex;
-  gap: 12px;
+@media (max-width: 980px) {
+  .upload-page__bulk {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .upload-page__apply {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 560px) {
-  .upload-page__batch {
+  .upload-page {
+    padding: 20px 12px;
+  }
+
+  .upload-page__toolbar,
+  .upload-page__footer-actions,
+  .upload-page__done-actions {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .upload-page__instructions-head {
-    align-items: stretch;
-    flex-direction: column;
+  .upload-page__bulk {
+    grid-template-columns: 1fr;
   }
 }

@@ -43,6 +43,18 @@ const batchUpload = multer({
   limits: { fileSize: 200 * 1024 * 1024 },
 });
 
+const tableBatchUpload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === 'text/html' || file.originalname.endsWith('.html')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .html files are allowed'));
+    }
+  },
+  limits: { fileSize: 50 * 1024 * 1024, files: 100 },
+});
+
 const router = express.Router();
 
 const MANIFEST_NAME = 'manifest.csv';
@@ -246,6 +258,86 @@ router.post('/batch', batchUpload.single('file'), (req, res) => {
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
     console.error('Batch upload failed:', err.message);
+    res.status(500).json({ error: 'Batch upload failed' });
+  }
+});
+
+router.post('/batch-table', tableBatchUpload.array('files'), (req, res) => {
+  const files = req.files || [];
+  const errors = [];
+  let metadata = [];
+
+  try {
+    metadata = JSON.parse(req.body.metadata || '[]');
+  } catch {
+    errors.push('metadata must be valid JSON.');
+  }
+
+  if (files.length < 2) errors.push('Batch upload requires at least two .html files.');
+  if (!Array.isArray(metadata)) errors.push('metadata must be an array.');
+  if (Array.isArray(metadata) && files.length !== metadata.length) {
+    errors.push('Uploaded file count must match metadata row count.');
+  }
+
+  const preparedRows = [];
+  if (Array.isArray(metadata)) {
+    files.forEach((file, idx) => {
+      const row = metadata[idx] || {};
+      const rowNumber = idx + 1;
+      if (!row.appId) errors.push(`Row ${rowNumber}: Application is required.`);
+      preparedRows.push({
+        file,
+        originalName: file.originalname,
+        title: String(row.title || '').trim(),
+        appId: row.appId || null,
+        tags: Array.isArray(row.tags) ? row.tags.map(tag => String(tag).trim().toLowerCase()).filter(Boolean) : [],
+        developer: String(row.developer || '').trim(),
+        repo: String(row.repo || '').trim(),
+        branch: String(row.branch || '').trim(),
+        notes: String(row.notes || ''),
+      });
+    });
+  }
+
+  if (errors.length) {
+    return res.status(400).json({ error: 'Batch validation failed', errors });
+  }
+
+  const writtenFiles = [];
+  const insertedAds = [];
+
+  try {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+    for (const row of preparedRows) {
+      const id = crypto.randomUUID();
+      const filename = `${id}.html`;
+      const targetPath = path.join(UPLOADS_DIR, filename);
+      const html = row.file.buffer.toString('utf8');
+      fs.writeFileSync(targetPath, html, 'utf8');
+      writtenFiles.push(targetPath);
+
+      const ad = insertAd({
+        id,
+        filename,
+        title: row.title || parseTitle(html) || row.originalName.replace(/\.html$/i, ''),
+        appId: row.appId,
+        tags: row.tags,
+        developer: row.developer,
+        repo: row.repo,
+        branch: row.branch,
+        notes: row.notes,
+      });
+      insertedAds.push(ad);
+    }
+
+    res.status(201).json({ uploaded: insertedAds.length, ads: insertedAds });
+  } catch (err) {
+    for (const ad of insertedAds) deleteAd(ad.id);
+    for (const filePath of writtenFiles) {
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    console.error('Table batch upload failed:', err.message);
     res.status(500).json({ error: 'Batch upload failed' });
   }
 });

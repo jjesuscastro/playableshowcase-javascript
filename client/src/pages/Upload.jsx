@@ -1,208 +1,298 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
+import AppModal from '../components/AppModal';
 import DropZone from '../components/DropZone';
 import MainSidebar from '../components/MainSidebar';
-import MetadataModal from '../components/MetadataModal';
-import { deleteAd, listApps, updateAd, updateAdFile, uploadAd, uploadAdsBatch } from '../api';
+import { createApp, listApps, listDevelopers, uploadAdsBatchTable } from '../api';
 import './Upload.css';
+
+function titleFromFilename(name) {
+  return name.replace(/\.html$/i, '').replace(/[-_]+/g, ' ').trim();
+}
+
+function tagStringToArray(value) {
+  return value.split(',').map(tag => tag.trim().toLowerCase()).filter(Boolean);
+}
+
+function createRow(file) {
+  return {
+    id: crypto.randomUUID(),
+    file,
+    filename: file.name,
+    title: titleFromFilename(file.name),
+    appId: '',
+    tagsText: '',
+    developer: '',
+    repo: '',
+    branch: 'main',
+    notes: '',
+    error: '',
+  };
+}
 
 export default function Upload() {
   const navigate = useNavigate();
   const [apps, setApps] = useState([]);
+  const [developers, setDevelopers] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [bulk, setBulk] = useState({ appId: '', tagsText: '', developer: '', repo: '', branch: 'main', notes: '' });
   const [uploading, setUploading] = useState(false);
-  const [batchUploading, setBatchUploading] = useState(false);
-  const [batchErrors, setBatchErrors] = useState([]);
-  const [editingAd, setEditingAd] = useState(null);
   const [doneCount, setDoneCount] = useState(0);
-  const [doneLabel, setDoneLabel] = useState('');
-  const zipInputRef = useRef();
-  const uploadQueueRef = useRef([]);
+  const [batchErrors, setBatchErrors] = useState([]);
+  const [creatingApp, setCreatingApp] = useState(false);
+  const fileInputRef = useRef();
 
   useEffect(() => {
-    listApps().then(setApps).catch(() => {});
+    listApps().then(list => setApps([...list].sort((a, b) => a.name.localeCompare(b.name)))).catch(() => {});
+    listDevelopers().then(setDevelopers).catch(() => {});
   }, []);
 
-  async function handleFiles(files) {
-    setUploading(true);
-    setBatchErrors([]);
-    setDoneLabel('');
+  function handleFiles(files) {
+    const htmlFiles = [...files].filter(file => file.name.toLowerCase().endsWith('.html'));
+    if (!htmlFiles.length) return;
     setDoneCount(0);
-    uploadQueueRef.current = [...files];
-    processNext();
+    setBatchErrors([]);
+    setRows(prev => [...prev, ...htmlFiles.map(createRow)]);
   }
 
-  async function handleBatchFile(file) {
-    if (!file) return;
-    setBatchUploading(true);
+  function updateRow(id, patch) {
+    setRows(prev => prev.map(row => row.id === id ? { ...row, ...patch, error: '' } : row));
+  }
+
+  function removeRow(id) {
+    setRows(prev => prev.filter(row => row.id !== id));
+  }
+
+  function copyPrevious(index) {
+    if (index <= 0) return;
+    const prev = rows[index - 1];
+    updateRow(rows[index].id, {
+      appId: prev.appId,
+      tagsText: prev.tagsText,
+      developer: prev.developer,
+      repo: prev.repo,
+      branch: prev.branch,
+      notes: prev.notes,
+    });
+  }
+
+  function applyBulk() {
+    setRows(prev => prev.map(row => ({
+      ...row,
+      appId: bulk.appId,
+      tagsText: bulk.tagsText,
+      developer: bulk.developer,
+      repo: bulk.repo,
+      branch: bulk.branch,
+      notes: bulk.notes,
+      error: '',
+    })));
+  }
+
+  async function handleCreateApp(data) {
+    const created = await createApp(data);
+    setApps(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
+    setBulk(prev => ({ ...prev, appId: created.id }));
+    setCreatingApp(false);
+  }
+
+  function validateRows() {
+    const errors = [];
+    const nextRows = rows.map((row, idx) => {
+      if (!row.appId) {
+        const message = 'Application is required.';
+        errors.push(`Row ${idx + 1}: ${message}`);
+        return { ...row, error: message };
+      }
+      return { ...row, error: '' };
+    });
+    setRows(nextRows);
+    return errors;
+  }
+
+  async function uploadAll() {
+    const validationErrors = validateRows();
+    if (rows.length < 2) validationErrors.push('Add at least two HTML files.');
+    if (validationErrors.length) {
+      setBatchErrors(validationErrors);
+      return;
+    }
+
+    setUploading(true);
     setBatchErrors([]);
-    setDoneCount(0);
-    setDoneLabel('');
     try {
-      const result = await uploadAdsBatch(file);
-      setDoneCount(result.uploaded || 0);
-      setDoneLabel(` from ${file.name}`);
+      const payload = rows.map(row => ({
+        ...row,
+        tags: tagStringToArray(row.tagsText),
+      }));
+      const result = await uploadAdsBatchTable(payload);
+      setDoneCount(result.uploaded || rows.length);
+      setRows([]);
     } catch (err) {
       setBatchErrors(err.errors?.length ? err.errors : [err.message || 'Batch upload failed']);
     } finally {
-      setBatchUploading(false);
-      if (zipInputRef.current) zipInputRef.current.value = '';
+      setUploading(false);
     }
-  }
-
-  function handleZipChange(e) {
-    handleBatchFile(e.target.files[0]);
-  }
-
-  function downloadTemplate() {
-    const csv = [
-      'filename,title,app,tags,developer,repo,branch,notes',
-      'playable-a,Playable A,My App,"puzzle,level-1","Castro, Jesus",owner/repo,main,Notes here',
-    ].join('\n');
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'manifest-template.csv';
-    link.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function processNext() {
-    const file = uploadQueueRef.current.shift();
-    if (!file) { setUploading(false); return; }
-    try {
-      const ad = await uploadAd(file);
-      setEditingAd({ ...ad, _afterSave: processNext });
-    } catch (err) {
-      console.error('Upload failed', err);
-      processNext();
-    }
-  }
-
-  async function handleSave({ newFile, ...data }) {
-    if (newFile) await updateAdFile(editingAd.id, newFile);
-    await updateAd(editingAd.id, data);
-    setDoneCount(c => c + 1);
-    const after = editingAd._afterSave;
-    setEditingAd(null);
-    if (after) after();
-  }
-
-  function handleClose() {
-    // The file was already uploaded — delete it since the user cancelled
-    if (editingAd) deleteAd(editingAd.id).catch(() => {});
-    // Discard any remaining queued files
-    uploadQueueRef.current = [];
-    setEditingAd(null);
-    setUploading(false);
   }
 
   const sidebar = <MainSidebar active="upload" />;
 
   return (
     <AppLayout sidebar={sidebar}>
-    <div className="upload-page">
-      <header className="upload-page__header">
-        <button className="upload-page__back" onClick={() => navigate('/')}>← Catalog</button>
-        <h1>Upload Playables</h1>
-      </header>
+      <div className="upload-page">
+        <header className="upload-page__header">
+          <button className="upload-page__back" onClick={() => navigate('/')}>← Catalog</button>
+          <h1>Batch Upload</h1>
+        </header>
 
-      {!uploading && doneCount === 0 && (
-        <div className="upload-page__zone">
-          <DropZone onFiles={handleFiles} />
-
-          <div className="upload-page__batch">
-            <div>
-              <h2>Batch upload</h2>
-              <p>Upload a zip with root-level HTML files and manifest.csv.</p>
-            </div>
-            <input
-              ref={zipInputRef}
-              type="file"
-              accept=".zip,application/zip,application/x-zip-compressed"
-              className="upload-page__batch-input"
-              onChange={handleZipChange}
-            />
-            <button
-              type="button"
-              className="btn-secondary upload-page__batch-btn"
-              disabled={batchUploading}
-              onClick={() => zipInputRef.current?.click()}
-            >
-              {batchUploading ? 'Uploading...' : 'Choose zip'}
-            </button>
+        {rows.length === 0 && doneCount === 0 && (
+          <div className="upload-page__zone">
+            <DropZone onFiles={handleFiles} />
+            {apps.length === 0 && (
+              <p className="upload-page__warning">
+                No applications configured yet.{' '}
+                <button className="upload-page__link" onClick={() => navigate('/apps')}>
+                  Create one first
+                </button>{' '}
+                so you can link playables.
+              </p>
+            )}
           </div>
+        )}
 
-          <section className="upload-page__instructions">
-            <div className="upload-page__instructions-head">
-              <h2>Batch zip format</h2>
-              <button type="button" className="btn-secondary upload-page__template-btn" onClick={downloadTemplate}>
-                Download CSV template
+        {rows.length > 0 && (
+          <div className="upload-page__table-flow">
+            <div className="upload-page__toolbar">
+              <div>
+                <h2>{rows.length} files ready</h2>
+                <p>Fill metadata per row, or apply shared values to every row.</p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".html,text/html"
+                multiple
+                className="upload-page__hidden-input"
+                onChange={e => { handleFiles(e.target.files); e.target.value = ''; }}
+              />
+              <button type="button" className="btn-secondary" onClick={() => fileInputRef.current?.click()}>
+                Add files
               </button>
             </div>
-            <ul>
-              <li>Put <code>manifest.csv</code> at the root of the zip.</li>
-              <li>Put every playable <code>.html</code> file at the root of the zip.</li>
-              <li>Match metadata to files with the CSV <code>filename</code> column; <code>.html</code> is optional.</li>
-              <li>Use an existing application name in the <code>app</code> column.</li>
-              <li>The upload is all-or-nothing: one invalid row blocks the whole batch.</li>
-            </ul>
-            <pre>{`filename,title,app,tags,developer,repo,branch,notes
-playable-a,Playable A,My App,"puzzle,level-1","Castro, Jesus",owner/repo,main,Notes here`}</pre>
-          </section>
 
-          {batchErrors.length > 0 && (
-            <div className="upload-page__errors">
-              <strong>Batch validation failed</strong>
-              <ul>
-                {batchErrors.map((error, index) => (
-                  <li key={`${error}-${index}`}>{error}</li>
-                ))}
-              </ul>
+            <section className="upload-page__bulk">
+              <select value={bulk.appId} onChange={e => setBulk(v => ({ ...v, appId: e.target.value }))}>
+                <option value="">Application</option>
+                {apps.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
+              </select>
+              <button type="button" className="btn-secondary upload-page__new-app" onClick={() => setCreatingApp(true)}>
+                New Application
+              </button>
+              <input value={bulk.tagsText} onChange={e => setBulk(v => ({ ...v, tagsText: e.target.value }))} placeholder="tags" />
+              <select value={bulk.developer} onChange={e => setBulk(v => ({ ...v, developer: e.target.value }))}>
+                <option value="">Developer</option>
+                {developers.map(dev => <option key={dev.id} value={dev.name}>{dev.name}</option>)}
+              </select>
+              <input value={bulk.repo} onChange={e => setBulk(v => ({ ...v, repo: e.target.value }))} placeholder="repo" />
+              <input value={bulk.branch} onChange={e => setBulk(v => ({ ...v, branch: e.target.value }))} placeholder="branch" />
+              <input value={bulk.notes} onChange={e => setBulk(v => ({ ...v, notes: e.target.value }))} placeholder="notes" />
+              <button type="button" className="btn-primary upload-page__apply" onClick={applyBulk}>
+                Apply to all
+              </button>
+            </section>
+
+            <div className="upload-page__table-wrap">
+              <table className="upload-page__table">
+                <thead>
+                  <tr>
+                    <th>File</th>
+                    <th>Title</th>
+                    <th>Application</th>
+                    <th>Tags</th>
+                    <th>Developer</th>
+                    <th>Repo</th>
+                    <th>Branch</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, index) => (
+                    <tr key={row.id} className={row.error ? 'upload-page__row--error' : ''}>
+                      <td>
+                        <span className="upload-page__filename">{row.filename}</span>
+                        {row.error && <span className="upload-page__row-error">{row.error}</span>}
+                      </td>
+                      <td><input value={row.title} onChange={e => updateRow(row.id, { title: e.target.value })} /></td>
+                      <td>
+                        <select value={row.appId} onChange={e => updateRow(row.id, { appId: e.target.value })}>
+                          <option value="">Select app</option>
+                          {apps.map(app => <option key={app.id} value={app.id}>{app.name}</option>)}
+                        </select>
+                      </td>
+                      <td><input value={row.tagsText} onChange={e => updateRow(row.id, { tagsText: e.target.value })} placeholder="tag-a, tag-b" /></td>
+                      <td>
+                        <select value={row.developer} onChange={e => updateRow(row.id, { developer: e.target.value })}>
+                          <option value="">Developer</option>
+                          {developers.map(dev => <option key={dev.id} value={dev.name}>{dev.name}</option>)}
+                        </select>
+                      </td>
+                      <td><input value={row.repo} onChange={e => updateRow(row.id, { repo: e.target.value })} placeholder="owner/repo" /></td>
+                      <td><input value={row.branch} onChange={e => updateRow(row.id, { branch: e.target.value })} placeholder="main" /></td>
+                      <td><textarea value={row.notes} onChange={e => updateRow(row.id, { notes: e.target.value })} rows={2} /></td>
+                      <td>
+                        <div className="upload-page__row-actions">
+                          <button type="button" onClick={() => copyPrevious(index)} disabled={index === 0}>Copy prev</button>
+                          <button type="button" onClick={() => removeRow(row.id)}>Remove</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
 
-          {apps.length === 0 && (
-            <p className="upload-page__warning">
-              No applications configured yet.{' '}
-              <button className="upload-page__link" onClick={() => navigate('/apps')}>
-                Create one first
-              </button>{' '}
-              so you can link playables.
-            </p>
-          )}
-        </div>
-      )}
+            {batchErrors.length > 0 && (
+              <div className="upload-page__errors">
+                <strong>Batch validation failed</strong>
+                <ul>
+                  {batchErrors.map((error, index) => <li key={`${error}-${index}`}>{error}</li>)}
+                </ul>
+              </div>
+            )}
 
-      {uploading && !editingAd && (
-        <p className="upload-page__status">Uploading…</p>
-      )}
-
-      {batchUploading && (
-        <p className="upload-page__status">Uploading batch...</p>
-      )}
-
-      {!uploading && !batchUploading && doneCount > 0 && (
-        <div className="upload-page__done">
-          <p className="upload-page__done-msg">
-            {doneCount} playable{doneCount !== 1 ? 's' : ''} uploaded successfully{doneLabel}.
-          </p>
-          <div className="upload-page__done-actions">
-            <button className="btn-secondary" onClick={() => { setDoneCount(0); }}>Upload more</button>
-            <button className="btn-primary" onClick={() => navigate('/')}>View in Catalog</button>
+            <div className="upload-page__footer-actions">
+              <button type="button" className="btn-secondary" onClick={() => { setRows([]); setBatchErrors([]); }}>
+                Clear
+              </button>
+              <button type="button" className="btn-primary" onClick={uploadAll} disabled={uploading}>
+                {uploading ? 'Uploading...' : 'Upload All'}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {editingAd && (
-        <MetadataModal
-          ad={editingAd}
-          apps={apps}
-          onSave={handleSave}
-          onClose={handleClose}
-        />
-      )}
-    </div>
+        {doneCount > 0 && rows.length === 0 && (
+          <div className="upload-page__done">
+            <p className="upload-page__done-msg">
+              {doneCount} playable{doneCount !== 1 ? 's' : ''} uploaded successfully.
+            </p>
+            <div className="upload-page__done-actions">
+              <button className="btn-secondary" onClick={() => setDoneCount(0)}>Upload more</button>
+              <button className="btn-primary" onClick={() => navigate('/')}>View in Catalog</button>
+            </div>
+          </div>
+        )}
+
+        {creatingApp && (
+          <AppModal
+            app={null}
+            onSave={handleCreateApp}
+            onClose={() => setCreatingApp(false)}
+          />
+        )}
+      </div>
     </AppLayout>
   );
 }

@@ -76,6 +76,32 @@ export async function uploadAdsBatch(file) {
   return res.json();
 }
 
+export async function uploadAdsBatchTable(rows) {
+  const form = new FormData();
+  const metadata = rows.map(row => {
+    form.append('files', row.file);
+    return {
+      title: row.title,
+      appId: row.appId,
+      tags: row.tags,
+      developer: row.developer,
+      repo: row.repo,
+      branch: row.branch,
+      notes: row.notes,
+    };
+  });
+  form.append('metadata', JSON.stringify(metadata));
+
+  const res = await apiFetch(`${ADS_BASE}/batch-table`, { method: 'POST', body: form });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(body.error || 'Batch upload failed');
+    err.errors = body.errors || [];
+    throw err;
+  }
+  return res.json();
+}
+
 export async function updateAd(id, data) {
   const res = await apiFetch(`${ADS_BASE}/${id}`, {
     method: 'PATCH',
