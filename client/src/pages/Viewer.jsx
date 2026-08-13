@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getAd, listApps, listDevelopers, updateAd, updateAdFile } from '../api';
 import AppLayout from '../components/AppLayout';
 import DeviceFrame, { FRAMES, getFrameSize } from '../components/DeviceFrame';
+import MainSidebar from '../components/MainSidebar';
 import MetadataModal from '../components/MetadataModal';
 import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
 import './Viewer.css';
@@ -93,12 +94,7 @@ export default function Viewer() {
   const app = apps.find(a => a.id === ad.appId);
 
   const sidebar = (
-    <>
-      <div className="sb-brand">Playable Showcase</div>
-      <div className="sb-nav">
-        <button className="sb-btn" onClick={() => navigate('/')}>Back</button>
-      </div>
-
+    <MainSidebar active="viewer">
       <div className="sb-divider" />
       <span className="sb-section-label">Playable</span>
       <div className="viewer__sb-info">
@@ -192,6 +188,9 @@ export default function Viewer() {
         </div>
         <div className="viewer__ctrl-row">
           <button className="btn-primary viewer__edit-btn" onClick={() => setEditing(true)}>Edit</button>
+          <button className="viewer__ctrl-btn" onClick={() => setPickingScreenshot(true)}>
+            Screenshot
+          </button>
           <a
             href={`/uploads/${ad.filename}`}
             download={`${ad.title}.html`}
@@ -202,7 +201,7 @@ export default function Viewer() {
           </a>
         </div>
       </div>
-    </>
+    </MainSidebar>
   );
 
   return (

@@ -63,6 +63,19 @@ export async function uploadAd(file) {
   return res.json();
 }
 
+export async function uploadAdsBatch(file) {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await apiFetch(`${ADS_BASE}/batch`, { method: 'POST', body: form });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    const err = new Error(body.error || 'Batch upload failed');
+    err.errors = body.errors || [];
+    throw err;
+  }
+  return res.json();
+}
+
 export async function updateAd(id, data) {
   const res = await apiFetch(`${ADS_BASE}/${id}`, {
     method: 'PATCH',

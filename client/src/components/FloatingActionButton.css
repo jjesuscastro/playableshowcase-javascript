@@ -1,0 +1,80 @@
+.fab {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.fab__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: #7c6af7;
+  color: #fff;
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 0;
+  padding: 0 0 4px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  transition: background 0.15s, transform 0.15s;
+}
+
+.fab__button:hover {
+  background: #6a58e0;
+  transform: translateY(-1px);
+}
+
+.fab__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 210px;
+  padding: 8px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #181818;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.fab__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #e8e8e8;
+  cursor: pointer;
+  text-align: left;
+}
+
+.fab__item:hover {
+  background: #242424;
+}
+
+.fab__item span {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.fab__item small {
+  color: #888;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 680px) {
+  .fab {
+    right: 18px;
+    bottom: 18px;
+  }
+}

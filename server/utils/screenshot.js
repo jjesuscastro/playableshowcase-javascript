@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 const FINAL_SETTLE_MS = 800;
@@ -13,15 +12,24 @@ function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getPuppeteer() {
+  return require('puppeteer-core');
+}
+
 function getBrowserExecutablePath() {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
   return EDGE_PATHS.find(p => fs.existsSync(p));
 }
 
 function getLaunchArgs() {
+  const executablePath = getBrowserExecutablePath();
+  if (!executablePath) {
+    throw new Error('No browser executable found. Set PUPPETEER_EXECUTABLE_PATH to Chrome or Edge.');
+  }
+
   return {
     headless: true,
-    executablePath: getBrowserExecutablePath(),
+    executablePath,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -33,6 +41,7 @@ function getLaunchArgs() {
 }
 
 async function withPage(url, width, height, fn) {
+  const puppeteer = getPuppeteer();
   const browser = await puppeteer.launch(getLaunchArgs());
   try {
     const page = await browser.newPage();

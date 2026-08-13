@@ -1,23 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import AppModal from '../components/AppModal';
+import FloatingActionButton from '../components/FloatingActionButton';
+import MainSidebar from '../components/MainSidebar';
 import { createApp, deleteApp, listApps, updateApp } from '../api';
 import './Apps.css';
 
 export default function Apps() {
-  const navigate = useNavigate();
   const [apps, setApps] = useState([]);
   const [editingApp, setEditingApp] = useState(null);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    listApps().then(list => setApps(sortByName(list))).catch(() => {});
+  }, []);
 
   function sortByName(list) {
     return [...list].sort((a, b) => a.name.localeCompare(b.name));
-  }
-
-  async function load() {
-    setApps(sortByName(await listApps()));
   }
 
   async function handleSave(data) {
@@ -37,16 +35,7 @@ export default function Apps() {
     setApps(prev => prev.filter(a => a.id !== app.id));
   }
 
-  const sidebar = (
-    <>
-      <div className="sb-brand">Playable Showcase</div>
-      <div className="sb-nav">
-        <button className="sb-btn sb-btn--primary" onClick={() => setEditingApp('new')}>+ New Application</button>
-        <button className="sb-btn" onClick={() => navigate('/')}>← Catalog</button>
-      </div>
-    </>
-  );
-
+  const sidebar = <MainSidebar active="apps" />;
   return (
     <AppLayout sidebar={sidebar}>
       <div className="apps-page">
@@ -84,6 +73,11 @@ export default function Apps() {
           ))}
         </div>
       </div>
+
+      <FloatingActionButton
+        label="New application"
+        actions={[{ label: 'New Application', onClick: () => setEditingApp('new') }]}
+      />
 
       {editingApp && (
         <AppModal

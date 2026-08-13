@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
+import MainSidebar from '../components/MainSidebar';
 import { addDeveloper, listDevelopers, removeDeveloper } from '../api';
 import './Settings.css';
 
 export default function Settings() {
-  const navigate = useNavigate();
   const [developers, setDevelopers] = useState([]);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
@@ -38,15 +37,7 @@ export default function Settings() {
     setDevelopers(prev => prev.filter(d => d.id !== dev.id));
   }
 
-  const sidebar = (
-    <>
-      <div className="sb-brand">Playable Showcase</div>
-      <div className="sb-nav">
-        <button className="sb-btn" onClick={() => navigate('/')}>← Catalog</button>
-      </div>
-    </>
-  );
-
+  const sidebar = <MainSidebar active="settings" />;
   return (
     <AppLayout sidebar={sidebar}>
       <div className="settings-page">

@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdCard from '../components/AdCard';
 import AppLayout from '../components/AppLayout';
+import FloatingActionButton from '../components/FloatingActionButton';
+import MainSidebar from '../components/MainSidebar';
 import MetadataModal from '../components/MetadataModal';
 import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
 import UploadPreviewModal from '../components/UploadPreviewModal';
-import { deleteAd, listAds, listApps, listDevelopers, saveThumbnail, updateAd, updateAdFile, uploadAd } from '../api';
+import { deleteAd, listAds, listApps, listDevelopers, updateAd, updateAdFile, uploadAd } from '../api';
 import './Catalog.css';
 
 export default function Catalog() {
@@ -109,59 +111,18 @@ export default function Catalog() {
     : ads;
 
   const sidebar = (
-    <>
-      <div className="sb-brand">Playable Showcase</div>
-
-      <div className="sb-nav">
-        <input ref={fileInputRef} type="file" accept=".html" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
-        <button className="sb-btn sb-btn--primary" onClick={openFilePicker}>+ Upload</button>
-        <button className="sb-btn" onClick={() => navigate('/apps')}>Applications</button>
-        <button className="sb-btn" onClick={() => navigate('/settings')}>Settings</button>
-      </div>
-
-      <div className="sb-divider" />
-      <div className="catalog__search-wrap">
-        <input
-          className="catalog__search"
-          type="search"
-          placeholder="Search…"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
-
-      {apps.length > 0 && (
-        <>
-          <div className="sb-divider" />
-          <span className="sb-section-label">Filter by App</span>
-          <div className="sb-nav" style={{ paddingTop: 0 }}>
-            <button
-              className={`sb-btn${activeAppId === null ? ' sb-btn--active' : ''}`}
-              onClick={() => setActiveAppId(null)}
-            >
-              All
-            </button>
-            {apps.map(a => (
-              <button
-                key={a.id}
-                className={`sb-btn${activeAppId === a.id ? ' sb-btn--active' : ''}`}
-                onClick={() => setActiveAppId(a.id)}
-              >
-                {a.icon_url
-                  ? <img src={a.icon_url} className="sb-app-icon" alt="" onError={e => { e.target.style.display = 'none'; }} />
-                  : <div className="sb-app-icon-placeholder" />
-                }
-                {a.name}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </>
+    <MainSidebar
+      active="catalog"
+      apps={apps}
+      activeAppId={activeAppId}
+      search={search}
+      onSearch={setSearch}
+      onFilterApp={setActiveAppId}
+    />
   );
-
   return (
     <AppLayout sidebar={sidebar}>
+      <input ref={fileInputRef} type="file" accept=".html" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
       <div className="catalog">
         {visibleAds.length === 0 && (
           <p className="catalog__empty">
@@ -180,6 +141,14 @@ export default function Catalog() {
           ))}
         </div>
       </div>
+
+      <FloatingActionButton
+        label="Add playable"
+        actions={[
+          { label: 'Upload HTML', description: 'Add one or more files', onClick: openFilePicker },
+          { label: 'Batch Upload', description: 'Upload a zip manifest', onClick: () => navigate('/upload') },
+        ]}
+      />
 
       {pendingAd && (
         <UploadPreviewModal

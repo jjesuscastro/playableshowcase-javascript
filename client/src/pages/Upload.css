@@ -1,6 +1,5 @@
 .upload-page {
-  max-width: 640px;
-  margin: 0 auto;
+  width: min(760px, 100%);
   padding: 32px 24px;
 }
 
@@ -39,6 +38,113 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.upload-page__batch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: #181818;
+}
+
+.upload-page__batch h2 {
+  margin: 0 0 4px;
+  color: #eee;
+  font-size: 1rem;
+}
+
+.upload-page__batch p {
+  margin: 0;
+  color: #999;
+  font-size: 0.88rem;
+}
+
+.upload-page__batch-input {
+  display: none;
+}
+
+.upload-page__batch-btn {
+  flex: 0 0 auto;
+}
+
+.upload-page__instructions {
+  padding: 18px;
+  border: 1px solid #2f2f2f;
+  border-radius: 8px;
+  background: #151515;
+}
+
+.upload-page__instructions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.upload-page__instructions h2 {
+  margin: 0;
+  color: #eee;
+  font-size: 1rem;
+}
+
+.upload-page__template-btn {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  font-size: 0.82rem;
+}
+
+.upload-page__instructions ul {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  color: #aaa;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.upload-page__instructions code {
+  color: #c9c0ff;
+  font-size: 0.86em;
+}
+
+.upload-page__instructions pre {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  background: #101010;
+  color: #d8d8d8;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.upload-page__errors {
+  padding: 16px;
+  border: 1px solid #6f2d3a;
+  border-radius: 8px;
+  background: #241418;
+  color: #f0b7c0;
+  font-size: 0.88rem;
+}
+
+.upload-page__errors strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #ffd6dc;
+}
+
+.upload-page__errors ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.upload-page__errors li + li {
+  margin-top: 4px;
 }
 
 .upload-page__warning {
@@ -89,4 +195,16 @@
 .upload-page__done-actions {
   display: flex;
   gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .upload-page__batch {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .upload-page__instructions-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
