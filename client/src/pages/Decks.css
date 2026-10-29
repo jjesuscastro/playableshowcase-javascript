@@ -1,0 +1,21 @@
+.decks-page { max-width: 1180px; margin: 0 auto; padding: 30px 24px 60px; color: #e8e8e8; }
+.decks-page__header { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
+.decks-page__header h1 { margin: 0; font-size: 1.8rem; }
+.decks-page__header p { margin: 5px 0 0; color: #888; }
+.decks-page__back { border: 0; background: none; color: #a99af7; cursor: pointer; font: inherit; }
+.deck-create, .deck-list { padding: 20px; border: 1px solid #2d2d2d; border-radius: 12px; background: #151515; }
+.deck-create__heading { display: flex; align-items: center; justify-content: space-between; }
+.deck-create h2, .deck-list h2 { margin: 0 0 16px; font-size: 1.1rem; }
+.deck-create__heading span { color: #999; font-size: .85rem; }
+.deck-create__name { display: grid; gap: 7px; max-width: 480px; color: #aaa; font-size: .85rem; }
+.deck-create__name input, .deck-item__url { width: 100%; box-sizing: border-box; border: 1px solid #353535; border-radius: 7px; background: #101010; color: #eee; padding: 9px 11px; font: inherit; }
+.deck-create__selection { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; max-height: 620px; overflow: auto; margin: 18px 0; }
+.decks-page__error { color: #ff9292; font-size: .88rem; }
+.decks-page__empty { color: #777; }
+.deck-list { margin-top: 22px; }
+.deck-item { display: grid; grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.6fr) auto auto auto; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid #2b2b2b; }
+.deck-item h3 { margin: 0 0 4px; font-size: .94rem; }
+.deck-item span { color: #888; font-size: .78rem; }
+.deck-item a { color: #b6aafa; }
+.deck-item__delete { border: 0; background: none; color: #e47e7e; cursor: pointer; }
+@media (max-width: 760px) { .deck-item { grid-template-columns: 1fr auto auto; } .deck-item__url { grid-column: 1 / -1; grid-row: 2; } .deck-item a { grid-column: 2; grid-row: 1; } .deck-item .btn-secondary { grid-column: 3; grid-row: 1; } .deck-item__delete { grid-column: 3; grid-row: 3; } }

@@ -5,6 +5,7 @@ import AppModal from '../components/AppModal';
 import DropZone from '../components/DropZone';
 import MainSidebar from '../components/MainSidebar';
 import { createApp, listApps, listDevelopers, uploadAdsBatchTable } from '../api';
+import { matchAppFromStoreLinks, storeLinksFromHtml } from '../utils/storeLinks';
 import './Upload.css';
 
 function titleFromFilename(name) {
@@ -15,13 +16,19 @@ function tagStringToArray(value) {
   return value.split(',').map(tag => tag.trim().toLowerCase()).filter(Boolean);
 }
 
-function createRow(file) {
+async function createRow(file, apps) {
+  let html = '';
+  try { html = await file.text(); } catch {}
+  const links = storeLinksFromHtml(html);
+  const matched = matchAppFromStoreLinks(links, apps);
   return {
     id: crypto.randomUUID(),
     file,
     filename: file.name,
     title: titleFromFilename(file.name),
-    appId: '',
+    appId: matched?.id || '',
+    storeLinks: links,
+    appMatch: matched?.name || '',
     tagsText: '',
     developer: '',
     repo: '',
@@ -41,6 +48,7 @@ export default function Upload() {
   const [doneCount, setDoneCount] = useState(0);
   const [batchErrors, setBatchErrors] = useState([]);
   const [creatingApp, setCreatingApp] = useState(false);
+  const [pendingAppLinks, setPendingAppLinks] = useState(null);
   const fileInputRef = useRef();
 
   useEffect(() => {
@@ -53,7 +61,9 @@ export default function Upload() {
     if (!htmlFiles.length) return;
     setDoneCount(0);
     setBatchErrors([]);
-    setRows(prev => [...prev, ...htmlFiles.map(createRow)]);
+    Promise.all(htmlFiles.map(file => createRow(file, apps))).then(newRows => {
+      setRows(prev => [...prev, ...newRows]);
+    });
   }
 
   function updateRow(id, patch) {
@@ -94,6 +104,10 @@ export default function Upload() {
     const created = await createApp(data);
     setApps(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
     setBulk(prev => ({ ...prev, appId: created.id }));
+    setRows(prev => prev.map(row => pendingAppLinks?.rowId === row.id
+      ? { ...row, appId: created.id, appMatch: created.name, storeLinks: null }
+      : row));
+    setPendingAppLinks(null);
     setCreatingApp(false);
   }
 
@@ -223,6 +237,13 @@ export default function Upload() {
                       <td>
                         <span className="upload-page__filename">{row.filename}</span>
                         {row.error && <span className="upload-page__row-error">{row.error}</span>}
+                        {row.appMatch && <span className="upload-page__row-match">Matched: {row.appMatch}</span>}
+                        {!row.appId && (row.storeLinks?.ios_url || row.storeLinks?.android_url) && (
+                          <span className="upload-page__row-unmatched">
+                            Store link found; app is not in catalog.{' '}
+                            <button type="button" onClick={() => { setPendingAppLinks({ ...row.storeLinks, rowId: row.id }); setCreatingApp(true); }}>Create app</button>
+                          </span>
+                        )}
                       </td>
                       <td><input value={row.title} onChange={e => updateRow(row.id, { title: e.target.value })} /></td>
                       <td>
@@ -287,9 +308,9 @@ export default function Upload() {
 
         {creatingApp && (
           <AppModal
-            app={null}
+            app={pendingAppLinks ? { ...pendingAppLinks, name: '' } : null}
             onSave={handleCreateApp}
-            onClose={() => setCreatingApp(false)}
+            onClose={() => { setCreatingApp(false); setPendingAppLinks(null); }}
           />
         )}
       </div>

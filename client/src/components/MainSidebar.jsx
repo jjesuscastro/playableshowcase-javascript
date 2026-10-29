@@ -19,6 +19,7 @@ export default function MainSidebar({
       <div className="sb-nav">
         <button className={`sb-btn${active === 'catalog' ? ' sb-btn--active' : ''}`} onClick={() => navigate('/')}>Catalog</button>
         <button className={`sb-btn${active === 'upload' ? ' sb-btn--active' : ''}`} onClick={() => navigate('/upload')}>Batch Upload</button>
+        <button className={`sb-btn${active === 'decks' ? ' sb-btn--active' : ''}`} onClick={() => navigate('/decks')}>Decks</button>
         <button className={`sb-btn${active === 'apps' ? ' sb-btn--active' : ''}`} onClick={() => navigate('/apps')}>Applications</button>
         <button className={`sb-btn${active === 'settings' ? ' sb-btn--active' : ''}`} onClick={() => navigate('/settings')}>Settings</button>
       </div>

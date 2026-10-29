@@ -1,5 +1,6 @@
 const ADS_BASE = '/api/ads';
 const APPS_BASE = '/api/apps';
+const DECKS_BASE = '/api/decks';
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('showcase_token');
@@ -210,4 +211,34 @@ export async function updateApp(id, data) {
 export async function deleteApp(id) {
   const res = await apiFetch(`${APPS_BASE}/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Delete app failed');
+}
+
+export async function listDecks() {
+  const res = await apiFetch(DECKS_BASE);
+  if (!res.ok) throw new Error('Failed to fetch decks');
+  return res.json();
+}
+
+export async function createDeck(data) {
+  const res = await apiFetch(DECKS_BASE, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || 'Failed to create deck');
+  }
+  return res.json();
+}
+
+export async function deleteDeck(id) {
+  const res = await apiFetch(`${DECKS_BASE}/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete deck');
+}
+
+export async function getPublicDeck(id) {
+  const res = await fetch(`/api/public/decks/${encodeURIComponent(id)}`);
+  if (!res.ok) throw new Error('Deck not found');
+  return res.json();
 }

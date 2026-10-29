@@ -8,6 +8,7 @@ import MetadataModal from '../components/MetadataModal';
 import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
 import UploadPreviewModal from '../components/UploadPreviewModal';
 import { deleteAd, listAds, listApps, listDevelopers, updateAd, updateAdFile, uploadAd } from '../api';
+import { matchAppFromStoreLinks, storeLinksFromHtml } from '../utils/storeLinks';
 import './Catalog.css';
 
 export default function Catalog() {
@@ -48,8 +49,12 @@ export default function Catalog() {
     const file = uploadQueueRef.current.shift();
     if (!file) return;
     try {
+      let html = '';
+      try { html = await file.text(); } catch {}
+      const storeLinks = storeLinksFromHtml(html);
+      const matchedApp = matchAppFromStoreLinks(storeLinks, apps);
       const ad = await uploadAd(file);
-      setPendingAd({ ...ad, _next: processNext });
+      setPendingAd({ ...ad, appId: matchedApp?.id || '', _storeLinks: storeLinks, _appMatch: matchedApp?.name || '', _next: processNext });
     } catch (err) {
       console.error('Upload failed', err);
       processNext();

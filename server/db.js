@@ -4,6 +4,7 @@ const crypto = require('crypto');
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'ads.json');
 const APPS_DB_PATH = process.env.APPS_DB_PATH || path.join(__dirname, '..', 'data', 'apps.json');
+const DECKS_DB_PATH = process.env.DECKS_DB_PATH || path.join(__dirname, '..', 'data', 'decks.json');
 
 // ── ads ──────────────────────────────────────────────────────────────────────
 
@@ -128,6 +129,34 @@ function deleteApp(id) {
   return app;
 }
 
+function readDecksDb() {
+  try { return JSON.parse(fs.readFileSync(DECKS_DB_PATH, 'utf8')); }
+  catch { return []; }
+}
+
+function writeDecksDb(decks) {
+  fs.mkdirSync(path.dirname(DECKS_DB_PATH), { recursive: true });
+  fs.writeFileSync(DECKS_DB_PATH, JSON.stringify(decks, null, 2), 'utf8');
+}
+
+function listDecks() { return readDecksDb(); }
+function getDeck(id) { return readDecksDb().find(deck => deck.id === id) || null; }
+function insertDeck({ name, adIds }) {
+  const decks = readDecksDb();
+  const deck = { id: crypto.randomUUID(), name, adIds, created_at: Date.now() };
+  decks.unshift(deck);
+  writeDecksDb(decks);
+  return deck;
+}
+function deleteDeck(id) {
+  const decks = readDecksDb();
+  const idx = decks.findIndex(deck => deck.id === id);
+  if (idx === -1) return null;
+  const [deck] = decks.splice(idx, 1);
+  writeDecksDb(decks);
+  return deck;
+}
+
 // ── developers ───────────────────────────────────────────────────────────────
 
 const DEVS_DB_PATH = process.env.DEVS_DB_PATH || path.join(__dirname, '..', 'data', 'developers.json');
@@ -187,4 +216,4 @@ function removeDeveloper(id) {
   return dev;
 }
 
-module.exports = { listAds, getAd, insertAd, updateAd, updateAdFile, updateAdThumbnail, deleteAd, listApps, getApp, insertApp, updateApp, deleteApp, listDevelopers, addDeveloper, removeDeveloper };
+module.exports = { listAds, getAd, insertAd, updateAd, updateAdFile, updateAdThumbnail, deleteAd, listApps, getApp, insertApp, updateApp, deleteApp, listDecks, getDeck, insertDeck, deleteDeck, listDevelopers, addDeveloper, removeDeveloper };

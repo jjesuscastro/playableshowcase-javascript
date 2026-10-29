@@ -13,6 +13,9 @@
   transform: translateY(-2px);
 }
 
+.ad-card--selected { border-color: #8f7df7; box-shadow: 0 0 0 1px #8f7df7; }
+.ad-card__actions .ad-card__selected-action { color: #9aebae; font-size: .82rem; }
+
 .ad-card__thumb {
   aspect-ratio: 9 / 19.5;
   background: #111;

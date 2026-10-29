@@ -19,6 +19,7 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
 
   const [localApps, setLocalApps] = useState(appsProp);
   const [creatingApp, setCreatingApp] = useState(false);
+  const [creatingFromStoreLink, setCreatingFromStoreLink] = useState(false);
   const [screenshotTaken, setScreenshotTaken] = useState(false);
   const [screenshotStatus, setScreenshotStatus] = useState(null);
   const [candidates, setCandidates] = useState([]);
@@ -91,6 +92,7 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
     const created = await createApp(data);
     setLocalApps(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
     setAppId(created.id);
+    setCreatingFromStoreLink(false);
     setCreatingApp(false);
   }
 
@@ -178,6 +180,13 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
               </select>
               <button type="button" className="upm__new-app-btn" onClick={() => setCreatingApp(true)}>+ New</button>
             </div>
+            {ad._appMatch && <p className="upm__store-match">Matched from store link: {ad._appMatch}</p>}
+            {!appId && (ad._storeLinks?.ios_url || ad._storeLinks?.android_url) && (
+              <p className="upm__store-unmatched">
+                Store link found; app is not in the catalog.{' '}
+                <button type="button" onClick={() => { setCreatingFromStoreLink(true); setCreatingApp(true); }}>Create app</button>
+              </p>
+            )}
           </label>
 
           <label>
@@ -243,9 +252,9 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
 
       {creatingApp && (
         <AppModal
-          app={null}
+          app={creatingFromStoreLink ? { ...ad._storeLinks, name: '' } : null}
           onSave={handleCreateApp}
-          onClose={() => setCreatingApp(false)}
+          onClose={() => { setCreatingApp(false); setCreatingFromStoreLink(false); }}
         />
       )}
     </dialog>

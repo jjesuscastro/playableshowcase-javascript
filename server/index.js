@@ -28,8 +28,10 @@ function requireAuth(req, res, next) {
 
 // Auth route (public)
 app.use('/api/auth', require('./routes/auth').router);
+app.use('/api/public/decks', require('./routes/decks').publicRouter);
 
 // Protected API routes
+app.use('/api/decks', requireAuth, require('./routes/decks').router);
 app.use('/api/apps', requireAuth, require('./routes/apps'));
 app.use('/api/developers', requireAuth, require('./routes/developers'));
 app.use('/api/ads', requireAuth, require('./routes/upload'));
