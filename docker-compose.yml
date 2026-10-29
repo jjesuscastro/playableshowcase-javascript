@@ -12,5 +12,6 @@ services:
       - DB_PATH=/data/ads.json
       - APPS_DB_PATH=/data/apps.json
       - DEVS_DB_PATH=/data/developers.json
+      - DECKS_DB_PATH=/data/decks.json
       - SHOWCASE_PASSWORD=${SHOWCASE_PASSWORD}
     restart: unless-stopped
