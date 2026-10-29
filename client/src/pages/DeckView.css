@@ -8,8 +8,11 @@
 .deck-public__state { display: grid; min-height: 100vh; align-content: center; justify-items: center; background: #101010; color: #eee; text-align: center; }
 .deck-public__state p { color: #888; }
 .deck-public__player { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: rgba(0, 0, 0, .82); }
-.deck-public__player-panel { display: flex; flex-direction: column; width: min(100%, 520px); height: min(92vh, 900px); overflow: hidden; border: 1px solid #383838; border-radius: 12px; background: #171717; }
-.deck-public__player-panel header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; }
-.deck-public__player-panel h2 { overflow: hidden; margin: 0; font-size: .95rem; text-overflow: ellipsis; white-space: nowrap; }
-.deck-public__player-panel header button { border: 0; background: none; color: #ddd; cursor: pointer; font-size: 1.5rem; }
-.deck-public__player-panel iframe { flex: 1; width: 100%; min-height: 0; border: 0; background: white; }
+.deck-public__player-panel { display: flex; flex-direction: column; width: min(96vw, 850px); height: min(96vh, 1000px); overflow: hidden; border: 1px solid #383838; border-radius: 12px; background: #171717; }
+.deck-public__player-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
+.deck-public__player-panel h2 { overflow: hidden; flex: 1 1 150px; margin: 0; font-size: .95rem; text-overflow: ellipsis; white-space: nowrap; }
+.deck-public__controls { display: flex; align-items: center; gap: 6px; }
+.deck-public__controls button { border: 1px solid #333; border-radius: 6px; background: #222; color: #bbb; cursor: pointer; padding: 6px 9px; font: inherit; font-size: .78rem; }
+.deck-public__controls button.active, .deck-public__controls button:hover { border-color: #7c6af7; color: #fff; background: #30294c; }
+.deck-public__player-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+.deck-public__frame-scale { position: absolute; top: 50%; left: 50%; transform-origin: center; }

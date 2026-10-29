@@ -38,16 +38,16 @@ export default function AdCard({ ad, app, onEdit, onDelete, selectable = false, 
       </div>
       <div className="ad-card__actions">
         {selectable ? (
-          <button className={selected ? 'ad-card__selected-action' : ''} onClick={() => onToggle?.(ad.id)} aria-pressed={selected} title={selected ? 'Remove from deck' : 'Add to deck'}>
+          <button type="button" className={selected ? 'ad-card__selected-action' : ''} onClick={() => onToggle?.(ad.id)} aria-pressed={selected} title={selected ? 'Remove from deck' : 'Add to deck'}>
             {selected ? '✓ Selected' : '+ Add to deck'}
           </button>
         ) : publicMode ? (
-          <button onClick={open} title="Play">▶ Play</button>
+          <button type="button" onClick={open} title="Play">▶ Play</button>
         ) : (
           <>
-            <button onClick={() => navigate(`/viewer/${ad.id}`)} title="Open viewer">▶</button>
-            <button onClick={() => onEdit(ad)} title="Edit metadata">✎</button>
-            <button onClick={() => onDelete(ad)} title="Delete" className="ad-card__delete">×</button>
+            <button type="button" onClick={() => navigate(`/viewer/${ad.id}`)} title="Open viewer">▶</button>
+            <button type="button" onClick={() => onEdit(ad)} title="Edit metadata">✎</button>
+            <button type="button" onClick={() => onDelete(ad)} title="Delete" className="ad-card__delete">×</button>
           </>
         )}
       </div>

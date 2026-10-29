@@ -1,4 +1,4 @@
-.decks-page { max-width: 1180px; margin: 0 auto; padding: 30px 24px 60px; color: #e8e8e8; }
+.decks-page { width: 100%; box-sizing: border-box; padding: 30px 32px 60px; color: #e8e8e8; }
 .decks-page__header { display: flex; align-items: center; gap: 18px; margin-bottom: 24px; }
 .decks-page__header h1 { margin: 0; font-size: 1.8rem; }
 .decks-page__header p { margin: 5px 0 0; color: #888; }
@@ -7,7 +7,7 @@
 .deck-create__heading { display: flex; align-items: center; justify-content: space-between; }
 .deck-create h2, .deck-list h2 { margin: 0 0 16px; font-size: 1.1rem; }
 .deck-create__heading span { color: #999; font-size: .85rem; }
-.deck-create__name { display: grid; gap: 7px; max-width: 480px; color: #aaa; font-size: .85rem; }
+.deck-create__name { display: grid; gap: 7px; max-width: 720px; color: #aaa; font-size: .85rem; }
 .deck-create__name input, .deck-item__url { width: 100%; box-sizing: border-box; border: 1px solid #353535; border-radius: 7px; background: #101010; color: #eee; padding: 9px 11px; font: inherit; }
 .deck-create__selection { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; max-height: 620px; overflow: auto; margin: 18px 0; }
 .decks-page__error { color: #ff9292; font-size: .88rem; }
