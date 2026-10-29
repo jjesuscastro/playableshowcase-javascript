@@ -15,17 +15,19 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/deck/:id" element={<DeckView />} />
-        <Route path="/" element={<ProtectedRoute><Catalog /></ProtectedRoute>} />
-        <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
-        <Route path="/apps" element={<ProtectedRoute><Apps /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>} />
-        <Route path="/viewer/:id" element={<ProtectedRoute><Viewer /></ProtectedRoute>} />
-      </Routes>
-    </BrowserRouter>
+    <div className="hpl-theme">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/deck/:id" element={<DeckView />} />
+          <Route path="/" element={<ProtectedRoute><Catalog /></ProtectedRoute>} />
+          <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+          <Route path="/apps" element={<ProtectedRoute><Apps /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/decks" element={<ProtectedRoute><Decks /></ProtectedRoute>} />
+          <Route path="/viewer/:id" element={<ProtectedRoute><Viewer /></ProtectedRoute>} />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }

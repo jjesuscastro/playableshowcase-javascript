@@ -14,7 +14,10 @@ export default function MainSidebar({
 
   return (
     <>
-      <div className="sb-brand">Playable Showcase</div>
+      <div className="sb-brand">
+        <img className="sb-brand__logo" src="/hpl-white-logo.png" alt="HPL Game Design" />
+        <span className="sb-brand__product">PLAYABLE SHOWCASE</span>
+      </div>
 
       <div className="sb-nav">
         <button className={`sb-btn${active === 'catalog' ? ' sb-btn--active' : ''}`} onClick={() => navigate('/')}>Catalog</button>

@@ -1,12 +1,16 @@
-.deck-public { min-height: 100vh; background: #101010; color: #eee; padding: 32px clamp(16px, 4vw, 56px); box-sizing: border-box; }
-.deck-public__header { text-align: center; margin: 0 auto 30px; }
+.deck-public { display: flex; min-height: 100vh; flex-direction: column; background: #101010; color: #eee; padding: 32px clamp(16px, 4vw, 56px); box-sizing: border-box; }
+.deck-public__header { position: relative; width: 100%; text-align: center; margin: 0 0 30px; }
 .deck-public__header > span { color: #9d8ef7; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .deck-public__header h1 { margin: 10px 0 6px; font-size: clamp(1.7rem, 4vw, 2.5rem); }
 .deck-public__header p { margin: 0; color: #888; }
 .deck-public__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; max-width: 1500px; margin: 0 auto; }
-.deck-public__footer { padding: 28px 0 4px; color: #666; font-size: .78rem; text-align: center; }
+.deck-public__footer { margin-top: auto; padding: 28px 0 4px; color: #666; font-size: .78rem; text-align: center; }
 .deck-public__state { display: grid; min-height: 100vh; align-content: center; justify-items: center; background: #101010; color: #eee; text-align: center; }
 .deck-public__state p { color: #888; }
+.deck-public__header > span { display: inline-block; padding-top: 18px; }
+@media (max-width: 600px) {
+  .deck-public__header > span { padding-top: 62px; }
+}
 .deck-public__player { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: rgba(0, 0, 0, .82); }
 .deck-public__player-panel { display: flex; flex-direction: column; width: min(96vw, 850px); height: min(96vh, 1000px); overflow: hidden; border: 1px solid #383838; border-radius: 12px; background: #171717; }
 .deck-public__player-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 10px 14px; }

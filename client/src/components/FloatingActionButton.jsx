@@ -29,7 +29,6 @@ export default function FloatingActionButton({ label = 'Create', actions = [] })
         aria-expanded={hasMenu ? open : undefined}
         onClick={() => hasMenu ? setOpen(value => !value) : run(actions[0])}
       >
-        +
       </button>
     </div>
   );

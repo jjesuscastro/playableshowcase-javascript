@@ -39,7 +39,8 @@ export default function DeckView() {
   return (
     <main className="deck-public">
       <header className="deck-public__header">
-        <span>Playable Showcase</span>
+        <img src="/hpl-white-logo.png" alt="HPL Game Design" />
+        <span>PLAYABLE SHOWCASE</span>
         <h1>{deck.name}</h1>
         <p>{deck.ads.length} playable{deck.ads.length === 1 ? '' : 's'}</p>
       </header>

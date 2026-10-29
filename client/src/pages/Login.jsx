@@ -27,7 +27,7 @@ export default function Login() {
     <div className="login-wrapper">
       <div className="login-card">
         <div className="login-logo">
-          <img src="/hpl.png" alt="Logo" />
+          <img src="/hpl-white-logo.png" alt="HPL Game Design" />
         </div>
         <h1>Playable Showcase</h1>
         <form onSubmit={handleSubmit} className="login-form">
