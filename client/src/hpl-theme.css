@@ -101,8 +101,6 @@
   background-size: cover;
   background-attachment: fixed;
 }
-.hpl-theme .deck-public__header > img { position: absolute; top: 0; left: 0; display: block; width: min(220px, 30vw); max-height: 90px; object-fit: contain; object-position: left top; }
-.hpl-theme .deck-public__header > span { color: var(--hpl-red-bright); }
 .hpl-theme .deck-public__controls button.active,
 .hpl-theme .deck-public__controls button:hover { border-color: var(--hpl-red); background: var(--hpl-red-dark); }
 .hpl-theme .deck-item a { color: #ff737d; }
@@ -125,6 +123,3 @@
   .hpl-theme .sb-btn { transition-duration: .18s; }
 }
 
-@media (max-width: 600px) {
-  .hpl-theme .deck-public__header > img { width: 132px; max-height: 56px; }
-}
