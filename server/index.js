@@ -34,6 +34,11 @@ app.use('/api/public/decks', require('./routes/decks').publicRouter);
 app.use('/api/decks', requireAuth, require('./routes/decks').router);
 app.use('/api/apps', requireAuth, require('./routes/apps'));
 app.use('/api/developers', requireAuth, require('./routes/developers'));
+// Keep playable-management endpoints out of the /api/ads namespace so browser
+// content filters are less likely to mistake app data for ad requests.
+app.use('/api/playables', requireAuth, require('./routes/upload'));
+app.use('/api/playables', requireAuth, require('./routes/ads'));
+// Keep the original route for already deployed clients and integrations.
 app.use('/api/ads', requireAuth, require('./routes/upload'));
 app.use('/api/ads', requireAuth, require('./routes/ads'));
 

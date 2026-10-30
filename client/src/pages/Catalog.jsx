@@ -17,6 +17,7 @@ export default function Catalog() {
   const uploadQueueRef = useRef([]);
 
   const [ads, setAds] = useState([]);
+  const [adsError, setAdsError] = useState('');
   const [apps, setApps] = useState([]);
   const [developers, setDevelopers] = useState([]);
   const [activeAppId, setActiveAppId] = useState(null);
@@ -31,7 +32,18 @@ export default function Catalog() {
       .catch(() => {});
     listDevelopers().then(setDevelopers).catch(() => {});
   }, []);
-  useEffect(() => { listAds(activeAppId).then(setAds).catch(() => {}); }, [activeAppId]);
+  useEffect(() => {
+    let active = true;
+    setAdsError('');
+    listAds(activeAppId)
+      .then(list => { if (active) setAds(list); })
+      .catch(() => {
+        if (!active) return;
+        setAds([]);
+        setAdsError('Could not load playables. Refresh the page or check the browser content blocker.');
+      });
+    return () => { active = false; };
+  }, [activeAppId]);
 
   // ── upload flow ──────────────────────────────────────────────────────────
 
@@ -129,7 +141,9 @@ export default function Catalog() {
     <AppLayout sidebar={sidebar}>
       <input ref={fileInputRef} type="file" accept=".html" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
       <div className="catalog">
-        {visibleAds.length === 0 && (
+        {adsError ? (
+          <p className="catalog__empty">{adsError}</p>
+        ) : visibleAds.length === 0 && (
           <p className="catalog__empty">
             {query ? 'No results.' : 'No playables yet. Click + Upload to add one.'}
           </p>

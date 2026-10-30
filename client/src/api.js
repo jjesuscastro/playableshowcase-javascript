@@ -1,4 +1,4 @@
-const ADS_BASE = '/api/ads';
+const ADS_BASE = '/api/playables';
 const APPS_BASE = '/api/apps';
 const DECKS_BASE = '/api/decks';
 
