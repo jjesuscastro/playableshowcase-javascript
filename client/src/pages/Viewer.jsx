@@ -6,7 +6,7 @@ import DeviceFrame, { FRAMES, getFrameSize } from '../components/DeviceFrame';
 import MainSidebar from '../components/MainSidebar';
 import MetadataModal from '../components/MetadataModal';
 import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
-import { captureElementFromTab } from '../manualCapture';
+import { imageFileToPngDataUrl } from '../imageFile';
 import './Viewer.css';
 
 const VIEWER_LAYOUT = {
@@ -29,8 +29,9 @@ export default function Viewer() {
   const [muted, setMuted] = useState(false);
   const [editing, setEditing] = useState(false);
   const [pickingScreenshot, setPickingScreenshot] = useState(false);
-  const [manualCaptureStatus, setManualCaptureStatus] = useState('');
-  const [manualCaptureError, setManualCaptureError] = useState('');
+  const [manualUploadStatus, setManualUploadStatus] = useState('');
+  const [manualUploadError, setManualUploadError] = useState('');
+  const thumbnailInputRef = useRef();
   const stageRef = useRef();
   const [stageDims, setStageDims] = useState(() => ({
     width: window.innerWidth - VIEWER_LAYOUT.sidebarWidth,
@@ -92,17 +93,19 @@ export default function Viewer() {
     }
   }
 
-  async function handleManualCapture() {
-    setManualCaptureStatus('capturing');
-    setManualCaptureError('');
+  async function handleThumbnailUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setManualUploadStatus('uploading');
+    setManualUploadError('');
     try {
-      const screen = stageRef.current?.querySelector('.device-frame__screen');
-      const dataUrl = await captureElementFromTab(screen);
+      const dataUrl = await imageFileToPngDataUrl(file);
       setAd(await saveThumbnail(id, dataUrl));
-      setManualCaptureStatus('done');
+      setManualUploadStatus('done');
     } catch (err) {
-      setManualCaptureError(err.message || 'Manual capture failed.');
-      setManualCaptureStatus('');
+      setManualUploadError(err.message || 'Thumbnail upload failed.');
+      setManualUploadStatus('');
     }
   }
 
@@ -217,16 +220,23 @@ export default function Viewer() {
             ↓ HTML
           </a>
         </div>
+        <input
+          ref={thumbnailInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={handleThumbnailUpload}
+          hidden
+        />
         <button
           className="viewer__ctrl-btn"
-          onClick={handleManualCapture}
-          disabled={manualCaptureStatus === 'capturing'}
-          title="Capture the visible playable from this browser tab"
+          onClick={() => thumbnailInputRef.current?.click()}
+          disabled={manualUploadStatus === 'uploading'}
+          title="Upload a PNG, JPG, or WebP thumbnail"
         >
-          {manualCaptureStatus === 'capturing' ? 'Capturing...' : 'Manual capture'}
+          {manualUploadStatus === 'uploading' ? 'Uploading...' : 'Upload thumbnail'}
         </button>
-        {manualCaptureError && <p className="viewer__capture-message viewer__capture-message--error">{manualCaptureError}</p>}
-        {manualCaptureStatus === 'done' && <p className="viewer__capture-message">Manual screenshot saved.</p>}
+        {manualUploadError && <p className="viewer__capture-message viewer__capture-message--error">{manualUploadError}</p>}
+        {manualUploadStatus === 'done' && <p className="viewer__capture-message">Thumbnail image saved.</p>}
       </div>
     </MainSidebar>
   );

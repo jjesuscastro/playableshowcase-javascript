@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createApp, requestScreenshotCandidates, saveThumbnail } from '../api';
-import { captureElementFromTab } from '../manualCapture';
+import { imageFileToPngDataUrl } from '../imageFile';
 import { buildMutedHtml } from '../muteScript';
 import AppModal from './AppModal';
 import './UploadPreviewModal.css';
@@ -8,6 +8,7 @@ import './UploadPreviewModal.css';
 export default function UploadPreviewModal({ ad, apps: appsProp = [], developers = [], onSave, onClose }) {
   const dialogRef = useRef();
   const initialScreenshotStarted = useRef(false);
+  const thumbnailInputRef = useRef();
 
   const [title, setTitle] = useState(ad.title);
   const [appId, setAppId] = useState(ad.appId || '');
@@ -26,8 +27,8 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
   const [candidates, setCandidates] = useState([]);
   const [selectedCandidateIdx, setSelectedCandidateIdx] = useState(null);
   const [savingCandidate, setSavingCandidate] = useState(false);
-  const [manualCaptureStatus, setManualCaptureStatus] = useState('');
-  const [manualCaptureError, setManualCaptureError] = useState('');
+  const [manualUploadStatus, setManualUploadStatus] = useState('');
+  const [manualUploadError, setManualUploadError] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -91,21 +92,23 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
     }
   }
 
-  async function handleManualCapture() {
-    setManualCaptureStatus('capturing');
-    setManualCaptureError('');
+  async function handleThumbnailUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setManualUploadStatus('uploading');
+    setManualUploadError('');
     try {
-      const frame = dialogRef.current?.querySelector('.upm__iframe');
-      const dataUrl = await captureElementFromTab(frame);
+      const dataUrl = await imageFileToPngDataUrl(file);
       await saveThumbnail(ad.id, dataUrl);
       setCandidates([]);
       setSelectedCandidateIdx(null);
       setScreenshotTaken(true);
       setScreenshotStatus('done');
-      setManualCaptureStatus('done');
+      setManualUploadStatus('done');
     } catch (err) {
-      setManualCaptureError(err.message || 'Manual capture failed.');
-      setManualCaptureStatus('');
+      setManualUploadError(err.message || 'Thumbnail upload failed.');
+      setManualUploadStatus('');
     }
   }
 
@@ -154,18 +157,25 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
             <p className="upm__shot-hint upm__shot-hint--error">Capture failed — try again</p>
           )}
 
-          <div className="upm__manual-capture">
+          <div className="upm__manual-upload">
+            <input
+              ref={thumbnailInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleThumbnailUpload}
+              hidden
+            />
             <button
               type="button"
               className="upm__retake"
-              onClick={handleManualCapture}
-              disabled={manualCaptureStatus === 'capturing'}
+              onClick={() => thumbnailInputRef.current?.click()}
+              disabled={manualUploadStatus === 'uploading'}
             >
-              {manualCaptureStatus === 'capturing' ? 'Capturing...' : 'Capture current preview'}
+              {manualUploadStatus === 'uploading' ? 'Uploading...' : 'Upload thumbnail image'}
             </button>
-            <span>Choose this tab in the browser sharing picker.</span>
-            {manualCaptureError && <p className="upm__shot-hint upm__shot-hint--error">{manualCaptureError}</p>}
-            {manualCaptureStatus === 'done' && <p className="upm__shot-hint">Manual screenshot saved.</p>}
+            <span>PNG, JPG, or WebP</span>
+            {manualUploadError && <p className="upm__shot-hint upm__shot-hint--error">{manualUploadError}</p>}
+            {manualUploadStatus === 'done' && <p className="upm__shot-hint">Thumbnail image saved.</p>}
           </div>
 
           {candidates.length > 0 && (
