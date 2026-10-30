@@ -73,11 +73,11 @@
   background-image: linear-gradient(135deg, #ff4654, #a71120);
 }
 .hpl-theme :is(.upload-page__back, .upload-page__link, .decks-page__back) { color: #ff6873; }
-.hpl-theme .ad-card:hover { border-color: var(--hpl-red); }
-.hpl-theme .ad-card--selected { border-color: var(--hpl-red-bright); box-shadow: 0 0 0 1px var(--hpl-red-bright); }
-.hpl-theme .ad-card__app { color: #ff737d; }
-.hpl-theme .ad-card__actions button:hover { background: #2a191b; }
-.hpl-theme .ad-card__actions .ad-card__selected-action { color: #ff9ca3; }
+.hpl-theme .playable-card:hover { border-color: var(--hpl-red); }
+.hpl-theme .playable-card--selected { border-color: var(--hpl-red-bright); box-shadow: 0 0 0 1px var(--hpl-red-bright); }
+.hpl-theme .playable-card__app { color: #ff737d; }
+.hpl-theme .playable-card__actions button:hover { background: #2a191b; }
+.hpl-theme .playable-card__actions .playable-card__selected-action { color: #ff9ca3; }
 .hpl-theme .catalog__search:focus { border-color: var(--hpl-red); }
 .hpl-theme .dropzone:hover,
 .hpl-theme .dropzone--active { border-color: var(--hpl-red); background: #241315; }
@@ -105,7 +105,7 @@
 .hpl-theme .deck-public__controls button:hover { border-color: var(--hpl-red); background: var(--hpl-red-dark); }
 .hpl-theme .deck-item a { color: #ff737d; }
 .hpl-theme .deck-item__delete { color: #ff707a; }
-.hpl-theme .deck-create__selection .ad-card--selected { border-color: var(--hpl-red-bright); }
+.hpl-theme .deck-create__selection .playable-card--selected { border-color: var(--hpl-red-bright); }
 .hpl-theme .login-wrapper { background: transparent; }
 .hpl-theme .login-card { border-color: #3a2427; background: rgba(13, 11, 12, .88); backdrop-filter: blur(16px); }
 .hpl-theme .login-logo img { width: min(240px, 90%); filter: none; }
@@ -119,7 +119,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .hpl-theme .btn-primary,
-  .hpl-theme .ad-card,
+  .hpl-theme .playable-card,
   .hpl-theme .sb-btn { transition-duration: .18s; }
 }
 
