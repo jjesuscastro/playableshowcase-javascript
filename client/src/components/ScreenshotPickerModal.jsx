@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { requestScreenshotCandidates, saveThumbnail } from '../api';
+import { imageFileToPngDataUrl } from '../imageFile';
 import './ScreenshotPickerModal.css';
 
 export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
   const dialogRef = useRef();
+  const thumbnailInputRef = useRef();
   const startedRef = useRef(false);
 
   const [candidates, setCandidates] = useState([]);
@@ -43,7 +45,24 @@ export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
     try {
       const updated = await saveThumbnail(ad.id, dataUrl);
       onDone(updated);
-    } catch {
+    } catch (err) {
+      setError(err.message || 'Could not save the selected screenshot.');
+      setStatus('error');
+    }
+  }
+
+  async function handleThumbnailUpload(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    setStatus('saving');
+    setError('');
+    try {
+      const dataUrl = await imageFileToPngDataUrl(file);
+      const updated = await saveThumbnail(ad.id, dataUrl);
+      onDone(updated);
+    } catch (err) {
+      setError(err.message || 'Thumbnail upload failed.');
       setStatus('error');
     }
   }
@@ -59,7 +78,7 @@ export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
         )}
 
         {status === 'error' && (
-          <div className="spm__error">Capture failed: {error}</div>
+          <div className="spm__error">{error}</div>
         )}
 
         {(status === 'selecting' || status === 'saving') && (
@@ -86,6 +105,21 @@ export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
       </div>
 
       <div className="spm__footer">
+        <input
+          ref={thumbnailInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={handleThumbnailUpload}
+          hidden
+        />
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => thumbnailInputRef.current?.click()}
+          disabled={status === 'loading' || status === 'saving'}
+        >
+          Upload image
+        </button>
         <button
           type="button"
           className="btn-secondary"

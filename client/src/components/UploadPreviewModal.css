@@ -63,7 +63,7 @@
   color: #f77;
 }
 
-.upm__manual-capture {
+.upm__manual-upload {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,7 +72,7 @@
   margin-top: 4px;
 }
 
-.upm__manual-capture > span {
+.upm__manual-upload > span {
   font-size: 0.68rem;
   color: #666;
   text-align: center;
