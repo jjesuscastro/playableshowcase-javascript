@@ -86,8 +86,8 @@ router.post('/:id/screenshot', async (req, res) => {
     const updated = updateAdThumbnail(req.params.id, thumbFilename);
     res.json(updated);
   } catch (err) {
-    console.error('Screenshot failed:', err.message);
-    res.status(500).json({ error: 'Screenshot failed' });
+    console.error('Screenshot failed:', err);
+    res.status(500).json({ error: 'Screenshot failed', details: err.message });
   }
 });
 
@@ -102,8 +102,8 @@ router.post('/:id/screenshot-candidates', async (req, res) => {
     const candidates = buffers.map(buf => 'data:image/png;base64,' + buf.toString('base64'));
     res.json({ candidates });
   } catch (err) {
-    console.error('Screenshot candidates failed:', err.message);
-    res.status(500).json({ error: 'Screenshot capture failed' });
+    console.error('Screenshot candidates failed:', err);
+    res.status(500).json({ error: 'Screenshot capture failed', details: err.message });
   }
 });
 

@@ -8,6 +8,7 @@ export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
 
   const [candidates, setCandidates] = useState([]);
   const [status, setStatus] = useState('loading'); // loading | selecting | saving | error
+  const [error, setError] = useState('');
   const [selectedIdx, setSelectedIdx] = useState(null);
 
   useEffect(() => {
@@ -24,12 +25,14 @@ export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
   async function fetchCandidates() {
     setStatus('loading');
     setCandidates([]);
+    setError('');
     setSelectedIdx(null);
     try {
       const { candidates: c } = await requestScreenshotCandidates(ad.id);
       setCandidates(c);
       setStatus('selecting');
-    } catch {
+    } catch (err) {
+      setError(err.message || 'Screenshot capture failed');
       setStatus('error');
     }
   }
@@ -56,7 +59,7 @@ export default function ScreenshotPickerModal({ ad, onDone, onSkip }) {
         )}
 
         {status === 'error' && (
-          <div className="spm__error">Capture failed.</div>
+          <div className="spm__error">Capture failed: {error}</div>
         )}
 
         {(status === 'selecting' || status === 'saving') && (
