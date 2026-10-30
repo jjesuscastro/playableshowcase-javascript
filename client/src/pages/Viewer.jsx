@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAd, listApps, listDevelopers, updateAd, updateAdFile } from '../api';
+import { getAd, listApps, listDevelopers, saveThumbnail, updateAd, updateAdFile } from '../api';
 import AppLayout from '../components/AppLayout';
 import DeviceFrame, { FRAMES, getFrameSize } from '../components/DeviceFrame';
 import MainSidebar from '../components/MainSidebar';
 import MetadataModal from '../components/MetadataModal';
 import ScreenshotPickerModal from '../components/ScreenshotPickerModal';
+import { captureElementFromTab } from '../manualCapture';
 import './Viewer.css';
 
 const VIEWER_LAYOUT = {
@@ -28,6 +29,8 @@ export default function Viewer() {
   const [muted, setMuted] = useState(false);
   const [editing, setEditing] = useState(false);
   const [pickingScreenshot, setPickingScreenshot] = useState(false);
+  const [manualCaptureStatus, setManualCaptureStatus] = useState('');
+  const [manualCaptureError, setManualCaptureError] = useState('');
   const stageRef = useRef();
   const [stageDims, setStageDims] = useState(() => ({
     width: window.innerWidth - VIEWER_LAYOUT.sidebarWidth,
@@ -86,6 +89,20 @@ export default function Viewer() {
     setEditing(false);
     if (newFile) {
       setPickingScreenshot(true);
+    }
+  }
+
+  async function handleManualCapture() {
+    setManualCaptureStatus('capturing');
+    setManualCaptureError('');
+    try {
+      const screen = stageRef.current?.querySelector('.device-frame__screen');
+      const dataUrl = await captureElementFromTab(screen);
+      setAd(await saveThumbnail(id, dataUrl));
+      setManualCaptureStatus('done');
+    } catch (err) {
+      setManualCaptureError(err.message || 'Manual capture failed.');
+      setManualCaptureStatus('');
     }
   }
 
@@ -200,6 +217,16 @@ export default function Viewer() {
             ↓ HTML
           </a>
         </div>
+        <button
+          className="viewer__ctrl-btn"
+          onClick={handleManualCapture}
+          disabled={manualCaptureStatus === 'capturing'}
+          title="Capture the visible playable from this browser tab"
+        >
+          {manualCaptureStatus === 'capturing' ? 'Capturing...' : 'Manual capture'}
+        </button>
+        {manualCaptureError && <p className="viewer__capture-message viewer__capture-message--error">{manualCaptureError}</p>}
+        {manualCaptureStatus === 'done' && <p className="viewer__capture-message">Manual screenshot saved.</p>}
       </div>
     </MainSidebar>
   );
