@@ -13,6 +13,7 @@ WORKDIR /app
 # Chromium dependencies for Puppeteer
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    chromium \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
@@ -57,4 +58,5 @@ COPY --from=client-build /app/public ./public
 RUN mkdir -p /data /uploads
 EXPOSE 3000
 ENV NODE_ENV=production
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 CMD ["node", "server/index.js"]
