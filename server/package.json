@@ -19,6 +19,6 @@
     "nodemon": "^3.1.0"
   },
   "overrides": {
-    "yargs": "15.4.1"
+    "yargs": "17.7.2"
   }
 }
