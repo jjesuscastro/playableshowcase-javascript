@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createApp, requestScreenshotCandidates, saveThumbnail } from '../api';
+import { captureElementFromTab } from '../manualCapture';
 import { buildMutedHtml } from '../muteScript';
 import AppModal from './AppModal';
 import './UploadPreviewModal.css';
@@ -25,6 +26,8 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
   const [candidates, setCandidates] = useState([]);
   const [selectedCandidateIdx, setSelectedCandidateIdx] = useState(null);
   const [savingCandidate, setSavingCandidate] = useState(false);
+  const [manualCaptureStatus, setManualCaptureStatus] = useState('');
+  const [manualCaptureError, setManualCaptureError] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -88,6 +91,24 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
     }
   }
 
+  async function handleManualCapture() {
+    setManualCaptureStatus('capturing');
+    setManualCaptureError('');
+    try {
+      const frame = dialogRef.current?.querySelector('.upm__iframe');
+      const dataUrl = await captureElementFromTab(frame);
+      await saveThumbnail(ad.id, dataUrl);
+      setCandidates([]);
+      setSelectedCandidateIdx(null);
+      setScreenshotTaken(true);
+      setScreenshotStatus('done');
+      setManualCaptureStatus('done');
+    } catch (err) {
+      setManualCaptureError(err.message || 'Manual capture failed.');
+      setManualCaptureStatus('');
+    }
+  }
+
   async function handleCreateApp(data) {
     const created = await createApp(data);
     setLocalApps(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)));
@@ -132,6 +153,20 @@ export default function UploadPreviewModal({ ad, apps: appsProp = [], developers
           {screenshotStatus === 'error' && (
             <p className="upm__shot-hint upm__shot-hint--error">Capture failed — try again</p>
           )}
+
+          <div className="upm__manual-capture">
+            <button
+              type="button"
+              className="upm__retake"
+              onClick={handleManualCapture}
+              disabled={manualCaptureStatus === 'capturing'}
+            >
+              {manualCaptureStatus === 'capturing' ? 'Capturing...' : 'Capture current preview'}
+            </button>
+            <span>Choose this tab in the browser sharing picker.</span>
+            {manualCaptureError && <p className="upm__shot-hint upm__shot-hint--error">{manualCaptureError}</p>}
+            {manualCaptureStatus === 'done' && <p className="upm__shot-hint">Manual screenshot saved.</p>}
+          </div>
 
           {candidates.length > 0 && (
             <div className="upm__candidates-wrap">

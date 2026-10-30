@@ -194,6 +194,17 @@
   justify-content: center;
 }
 
+.viewer__capture-message {
+  margin: 0;
+  color: #9d8ef7;
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.viewer__capture-message--error {
+  color: #f77;
+}
+
 @media (max-width: 680px) {
   .viewer__stage {
     min-height: 100dvh;
