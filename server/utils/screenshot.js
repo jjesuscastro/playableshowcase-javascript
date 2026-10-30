@@ -1,32 +1,17 @@
-const fs = require('fs');
-
 const FINAL_SETTLE_MS = 800;
 const BURST_DELAYS_MS = [0, 500, 500];
 const CANDIDATE_GAPS_MS = [2000, 2000]; // delays between candidates: T+0, T+2s, T+4s
-const EDGE_PATHS = [
-  'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-  'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-];
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function getPuppeteer() {
-  return require('puppeteer-core');
+  return require('puppeteer');
 }
 
-function getBrowserExecutablePath() {
-  if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;
-  return EDGE_PATHS.find(p => fs.existsSync(p));
-}
-
-function getLaunchArgs() {
-  const executablePath = getBrowserExecutablePath();
-  if (!executablePath) {
-    throw new Error('No browser executable found. Set PUPPETEER_EXECUTABLE_PATH to Chrome or Edge.');
-  }
-
+function getLaunchArgs(puppeteer) {
+  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath();
   return {
     headless: true,
     executablePath,
@@ -42,7 +27,7 @@ function getLaunchArgs() {
 
 async function withPage(url, width, height, fn) {
   const puppeteer = getPuppeteer();
-  const browser = await puppeteer.launch(getLaunchArgs());
+  const browser = await puppeteer.launch(getLaunchArgs(puppeteer));
   try {
     const page = await browser.newPage();
     // isMobile ensures the CSS viewport meta tag is respected the same way a
