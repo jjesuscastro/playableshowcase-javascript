@@ -134,7 +134,10 @@ export async function requestScreenshot(id) {
 
 export async function requestScreenshotCandidates(id) {
   const res = await apiFetch(`${ADS_BASE}/${id}/screenshot-candidates`, { method: 'POST' });
-  if (!res.ok) throw new Error('Screenshot candidates failed');
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.details || body.error || 'Screenshot candidates failed');
+  }
   return res.json();
 }
 
