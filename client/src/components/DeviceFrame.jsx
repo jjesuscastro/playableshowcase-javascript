@@ -73,7 +73,7 @@ function injectIntoIframe(iframe, code) {
   }
 }
 
-export default function DeviceFrame({ frame = 'phone', filename, rotated = false, muted = false, iframeRef: externalRef, onIframeLoad }) {
+export default function DeviceFrame({ frame = 'phone', filename, rotated = false, muted = false, fullscreen = false, iframeRef: externalRef, onIframeLoad }) {
   const innerRef = useRef();
   const ref = externalRef ?? innerRef;
 
@@ -89,6 +89,20 @@ export default function DeviceFrame({ frame = 'phone', filename, rotated = false
   }
 
   const o = rotated ? 'landscape' : 'portrait';
+  if (fullscreen) {
+    return (
+      <iframe
+        ref={ref}
+        key={`${filename}-fullscreen`}
+        src={`/uploads/${filename}`}
+        title="Playable ad"
+        sandbox="allow-scripts allow-same-origin allow-forms"
+        onLoad={handleLoad}
+        className="deck-public__fullscreen-iframe"
+      />
+    );
+  }
+
   const { w: sw, h: sh } = SCREEN[frame][o];
   const [pt, pr, pb, pl] = BEZEL[frame][o];
   const outerW = sw + pl + pr;
