@@ -13,12 +13,20 @@ export default function DeckView() {
   const [frame, setFrame] = useState('phone');
   const [rotated, setRotated] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [mobilePreview, setMobilePreview] = useState(() => window.matchMedia('(max-width: 600px), (max-height: 600px) and (pointer: coarse)').matches);
   const stageRef = useRef(null);
   const [stageSize, setStageSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     getPublicDeck(id).then(setDeck).catch(() => setError(true));
   }, [id]);
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 600px), (max-height: 600px) and (pointer: coarse)');
+    const update = () => setMobilePreview(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     if (!stageRef.current) return undefined;
@@ -30,7 +38,9 @@ export default function DeckView() {
   const frameScale = useMemo(() => {
     const size = getFrameSize(frame, rotated);
     if (!stageSize.width || !stageSize.height) return 0.5;
-    return Math.min(1, (stageSize.width - 32) / size.width, (stageSize.height - 32) / size.height);
+    // Keep a clear inset around the framed preview so its bezel and shadow
+    // stay inside the desktop panel.
+    return Math.max(0.1, Math.min(1, (stageSize.width - 48) / size.width, (stageSize.height - 40) / size.height));
   }, [frame, rotated, stageSize]);
 
   if (error) return <main className="deck-public__state"><h1>Deck not found</h1><p>This link may have expired or been removed.</p></main>;
@@ -61,12 +71,13 @@ export default function DeckView() {
                 ))}
                 <button type="button" className={rotated ? 'active' : ''} onClick={() => setRotated(value => !value)}>Rotate</button>
                 <button type="button" className={muted ? 'active' : ''} onClick={() => setMuted(value => !value)}>{muted ? 'Unmute' : 'Mute'}</button>
-                <button type="button" onClick={() => setPlayingAd(null)} aria-label="Close playable">×</button>
+                {!mobilePreview && <button type="button" onClick={() => setPlayingAd(null)}>Close</button>}
               </div>
             </header>
-            <div className="deck-public__player-stage" ref={stageRef}>
-              <div className="deck-public__frame-scale" style={{ transform: `translate(-50%, -50%) scale(${frameScale})` }}>
-                <DeviceFrame frame={frame} filename={playingAd.filename} rotated={rotated} muted={muted} />
+            {mobilePreview && <button type="button" className="deck-public__close" onClick={() => setPlayingAd(null)}>Close</button>}
+            <div className={`deck-public__player-stage${mobilePreview ? ' deck-public__player-stage--fullscreen' : ''}`} ref={stageRef}>
+              <div className="deck-public__frame-scale" style={{ transform: `translateX(-50%) scale(${frameScale})` }}>
+                <DeviceFrame frame={frame} filename={playingAd.filename} rotated={rotated} muted={muted} fullscreen={mobilePreview} />
               </div>
             </div>
           </section>
