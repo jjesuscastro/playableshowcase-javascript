@@ -19,7 +19,7 @@ export default function Apps() {
   }
 
   async function handleSave(data) {
-    if (editingApp === 'new') {
+    if (editingApp === 'new' || editingApp === 'new-custom') {
       const created = await createApp(data);
       setApps(prev => sortByName([created, ...prev]));
     } else {
@@ -55,6 +55,9 @@ export default function Apps() {
               <div className="app-row__info">
                 <span className="app-row__name">{app.name}</span>
                 <div className="app-row__links">
+                  {!app.ios_url && !app.android_url
+                    ? <span className="app-row__store app-row__store--missing">Custom app</span>
+                    : <>
                   {app.ios_url
                     ? <a href={app.ios_url} target="_blank" rel="noopener noreferrer" className="app-row__store app-row__store--ios">iOS</a>
                     : <span className="app-row__store app-row__store--missing">No iOS link</span>
@@ -62,6 +65,8 @@ export default function Apps() {
                   {app.android_url
                     ? <a href={app.android_url} target="_blank" rel="noopener noreferrer" className="app-row__store app-row__store--android">Android</a>
                     : <span className="app-row__store app-row__store--missing">No Android link</span>
+                  }
+                    </>
                   }
                 </div>
               </div>
@@ -76,12 +81,16 @@ export default function Apps() {
 
       <FloatingActionButton
         label="New application"
-        actions={[{ label: 'New Application', onClick: () => setEditingApp('new') }]}
+        actions={[
+          { label: 'New Application', onClick: () => setEditingApp('new') },
+          { label: 'New Custom Application', onClick: () => setEditingApp('new-custom') },
+        ]}
       />
 
       {editingApp && (
         <AppModal
-          app={editingApp === 'new' ? null : editingApp}
+          app={editingApp === 'new' || editingApp === 'new-custom' ? null : editingApp}
+          customOnly={editingApp === 'new-custom'}
           onSave={handleSave}
           onClose={() => setEditingApp(null)}
         />

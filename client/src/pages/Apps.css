@@ -211,6 +211,29 @@
   border: 1px solid #333;
 }
 
+.app-modal__icon-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-bottom: 16px;
+}
+
+.app-modal__icon-placeholder {
+  display: grid;
+  place-items: center;
+  background: #2a2a2a;
+  color: #777;
+  font-size: .72rem;
+}
+
+.app-modal__icon-button {
+  padding: 5px 8px;
+  font-size: .72rem;
+  white-space: nowrap;
+}
+
 .app-modal__name-input-wrap {
   position: relative;
   display: flex;
